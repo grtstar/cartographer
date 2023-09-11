@@ -102,19 +102,24 @@ void OrderedMultiQueue::Dispatch() {
           continue;
         }
         CannotMakeProgress(it->first);
-        return;
+        //// return;
+        // add by dh, 在某一个传感器无数据时,允许其他传感器数据继续输入
+        it++;
+        continue; 
       }
       if (next_data == nullptr || data->GetTime() < next_data->GetTime()) {
         next_data = data;
         next_queue = &it->second;
         next_queue_key = it->first;
       }
-      CHECK_LE(last_dispatched_time_, next_data->GetTime())
-          << "Non-sorted data added to queue: '" << it->first << "'";
+      // CHECK_LE(last_dispatched_time_, next_data->GetTime())
+      //     << "Non-sorted data added to queue: '" << it->first << "'";
       ++it;
     }
+
     if (next_data == nullptr) {
-      CHECK(queues_.empty());
+      //// block by dh, 在某一个传感器无数据时,允许其他传感器数据继续输入
+      //CHECK(queues_.empty());
       return;
     }
 
@@ -122,7 +127,11 @@ void OrderedMultiQueue::Dispatch() {
     // all queues of this trajectory until a common start time has been reached.
     const common::Time common_start_time =
         GetCommonStartTime(next_queue_key.trajectory_id);
-
+    // add by dh, 在某一个传感器无数据时,避免计算错误
+    if(common_start_time == common::Time::min())
+    {
+      return;
+    }
     if (next_data->GetTime() >= common_start_time) {
       // Happy case, we are beyond the 'common_start_time' already.
       last_dispatched_time_ = next_data->GetTime();
@@ -159,6 +168,20 @@ void OrderedMultiQueue::CannotMakeProgress(const QueueKey& queue_key) {
 }
 
 common::Time OrderedMultiQueue::GetCommonStartTime(const int trajectory_id) {
+  // add by dh, 在某一个传感器无数据时,避免计算错误
+  if(common_start_time_per_trajectory_.find(trajectory_id) == common_start_time_per_trajectory_.end())
+  {
+    for (auto& entry : queues_) {
+      if (entry.first.trajectory_id == trajectory_id) {
+        if(entry.second.queue.Peek<Data>() == nullptr)
+        {
+          LOG(INFO) << entry.first << " is empty";
+          return common::Time::min();
+        }
+      }
+    }
+  }
+  
   auto emplace_result = common_start_time_per_trajectory_.emplace(
       trajectory_id, common::Time::min());
   common::Time& common_start_time = emplace_result.first->second;

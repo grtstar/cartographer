@@ -110,6 +110,8 @@ class TrajectoryBuilderInterface {
   // 'LocalTrajectoryBuilder2D/3D'.
   virtual void AddLocalSlamResultData(
       std::unique_ptr<mapping::LocalSlamResultData> local_slam_result_data) = 0;
+  
+  virtual void SetGlobalInitialPose(transform::Rigid3d & initial_pose) = 0;
 };
 
 proto::SensorId ToProto(const TrajectoryBuilderInterface::SensorId& sensor_id);

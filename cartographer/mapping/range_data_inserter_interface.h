@@ -23,6 +23,7 @@
 #include "cartographer/mapping/grid_interface.h"
 #include "cartographer/mapping/proto/submaps_options_2d.pb.h"
 #include "cartographer/sensor/range_data.h"
+#include "cartographer/mapping/proto/local_trajectory_builder_options_2d.pb.h"
 
 namespace cartographer {
 namespace mapping {
@@ -37,6 +38,8 @@ class RangeDataInserterInterface {
   // Inserts 'range_data' into 'grid'.
   virtual void Insert(const sensor::RangeData& range_data,
                       GridInterface* grid) const = 0;
+  virtual void Insert(const sensor::RangeData& range_data, GridInterface* grid,
+                      const proto::InLocationInserterOptions& options) const {}
 };
 
 }  // namespace mapping

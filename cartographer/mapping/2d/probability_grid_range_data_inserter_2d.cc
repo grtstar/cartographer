@@ -49,6 +49,48 @@ void GrowAsNeeded(const sensor::RangeData& range_data,
                                kPadding * Eigen::Vector2f::Ones());
 }
 
+void DrawLine(int x0, int y0, int x1, int y1, int expend, std::function<void(int, int)> f)
+{
+    int dx =  abs(x1-x0), sx = x0<x1 ? 1 : -1;
+    int dy = -abs(y1-y0), sy = y0<y1 ? 1 : -1;
+    int err = dx+dy, e2; /* error value e_xy */
+
+    int expend_line = -1;
+    for(;;){  /* loop */
+        f(x0,y0);
+        if (x0==x1 && y0==y1)
+        {
+          expend_line = expend;
+        } 
+        if(expend_line > 0)
+        {
+          expend_line--;
+          if(expend_line == 0)
+          {
+            break;
+          }
+        }
+
+        e2 = 2*err;
+        if (e2 >= dy) { err += dy; x0 += sx; } /* e_xy+e_x > 0 */
+        if (e2 <= dx) { err += dx; y0 += sy; } /* e_xy+e_y < 0 */
+    }
+}
+
+std::vector<Eigen::Array2i> GetEndNear(const Eigen::Array2i& begin,
+                                       const Eigen::Array2i& end, int tolerance) {
+  std::vector<Eigen::Array2i> result;
+  result.push_back(end);
+  if (begin[0] == end[0] && begin[1] == end[1]) {
+    return result;
+  }
+  DrawLine(begin.array()[0]/kSubpixelScale, begin.array()[1]/kSubpixelScale, end.array()[0]/kSubpixelScale, end.array()[1]/kSubpixelScale, tolerance, [&result](int x, int y){
+    result.push_back(Eigen::Array2i(x*kSubpixelScale, y*kSubpixelScale));
+  });
+  result.erase(result.begin(), result.begin() + result.size() - 1 - tolerance * 2);
+  return result;
+}
+
 void CastRays(const sensor::RangeData& range_data,
               const std::vector<uint16>& hit_table,
               const std::vector<uint16>& miss_table,
@@ -66,10 +108,86 @@ void CastRays(const sensor::RangeData& range_data,
   // Compute and add the end points.
   std::vector<Eigen::Array2i> ends;
   ends.reserve(range_data.returns.size());
+
   for (const sensor::RangefinderPoint& hit : range_data.returns) {
     ends.push_back(superscaled_limits.GetCellIndex(hit.position.head<2>()));
     probability_grid->ApplyLookupTable(ends.back() / kSubpixelScale, hit_table);
   }
+
+  if (!insert_free_space) {
+    return;
+  }
+
+  // Now add the misses.
+  for (const Eigen::Array2i& end : ends) {
+    std::vector<Eigen::Array2i> ray =
+        RayToPixelMask(begin, end, kSubpixelScale);
+    for (const Eigen::Array2i& cell_index : ray) {
+      probability_grid->ApplyLookupTable(cell_index, miss_table);
+    }
+  }
+
+  // Finally, compute and add empty rays based on misses in the range data.
+  for (const sensor::RangefinderPoint& missing_echo : range_data.misses) {
+    std::vector<Eigen::Array2i> ray = RayToPixelMask(
+        begin, superscaled_limits.GetCellIndex(missing_echo.position.head<2>()),
+        kSubpixelScale);
+    for (const Eigen::Array2i& cell_index : ray) {
+      probability_grid->ApplyLookupTable(cell_index, miss_table);
+    }
+  }
+}
+
+void CastRays(const sensor::RangeData& range_data,
+              const std::vector<uint16>& hit_table,
+              const std::vector<uint16>& miss_table,
+              const bool insert_free_space, ProbabilityGrid* probability_grid,
+              const proto::InLocationInserterOptions & options) {
+  GrowAsNeeded(range_data, probability_grid);
+
+  const MapLimits& limits = probability_grid->limits();
+  const double superscaled_resolution = limits.resolution() / kSubpixelScale;
+  const MapLimits superscaled_limits(
+      superscaled_resolution, limits.max(),
+      CellLimits(limits.cell_limits().num_x_cells * kSubpixelScale,
+                 limits.cell_limits().num_y_cells * kSubpixelScale));
+  const Eigen::Array2i begin =
+      superscaled_limits.GetCellIndex(range_data.origin.head<2>());
+  // Compute and add the end points.
+  std::vector<Eigen::Array2i> ends;
+  ends.reserve(range_data.returns.size());
+  int repeat_hit = 0;
+  auto origin = range_data.origin.head<2>();
+  for (const sensor::RangefinderPoint& hit : range_data.returns) {
+    auto hit_pos = hit.position.head<2>();
+    if(origin[0]-hit_pos[0] > options.max_hit_length() || origin[1]-hit_pos[1] > options.max_hit_length())
+    {
+      continue;
+    }
+
+    bool is_hit = true;
+    auto near = GetEndNear(begin, superscaled_limits.GetCellIndex(hit.position.head<2>()), options.hit_tolerance_grid());
+    for(auto & point : near)
+    {
+      if(probability_grid->GetProbability(point / kSubpixelScale) > options.hit_probability())
+      {
+        repeat_hit++;
+        is_hit = false;
+        break;
+      }
+    }
+    if(is_hit)
+    {
+      ends.push_back(superscaled_limits.GetCellIndex(hit.position.head<2>()));
+      probability_grid->ApplyLookupTable(ends.back() / kSubpixelScale, hit_table);
+    }
+    else
+    {
+      ends.push_back(near.front());
+    }
+  }
+
+  LOG(INFO) << "repeat hit: " << repeat_hit << " " << range_data.returns.size();
 
   if (!insert_free_space) {
     return;
@@ -129,6 +247,17 @@ void ProbabilityGridRangeDataInserter2D::Insert(
   // (i.e. no hits will be ignored because of a miss in the same cell).
   CastRays(range_data, hit_table_, miss_table_, options_.insert_free_space(),
            probability_grid);
+  probability_grid->FinishUpdate();
+}
+
+void ProbabilityGridRangeDataInserter2D::Insert(
+    const sensor::RangeData& range_data, GridInterface* const grid, const proto::InLocationInserterOptions& options) const {
+  ProbabilityGrid* const probability_grid = static_cast<ProbabilityGrid*>(grid);
+  CHECK(probability_grid != nullptr);
+  // By not finishing the update after hits are inserted, we give hits priority
+  // (i.e. no hits will be ignored because of a miss in the same cell).
+  CastRays(range_data, hit_table_, miss_table_, options_.insert_free_space(),
+           probability_grid, options);
   probability_grid->FinishUpdate();
 }
 

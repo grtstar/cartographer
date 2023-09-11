@@ -83,9 +83,9 @@ void Image::WritePng(FileWriter* const file_writer) {
   // the caller.
   UniqueCairoSurfacePtr surface = GetCairoSurface();
   CHECK_EQ(cairo_surface_status(surface.get()), CAIRO_STATUS_SUCCESS);
-  CHECK_EQ(cairo_surface_write_to_png_stream(surface.get(), &CairoWriteCallback,
-                                             file_writer),
-           CAIRO_STATUS_SUCCESS);
+//  CHECK_EQ(cairo_surface_write_to_png_stream(surface.get(), &CairoWriteCallback,
+//                                             file_writer),
+//           CAIRO_STATUS_SUCCESS);
 }
 
 const Uint8Color Image::GetPixel(int x, int y) const {

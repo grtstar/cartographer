@@ -39,10 +39,15 @@ ImuTracker::ImuTracker(const double imu_gravity_time_constant,
 void ImuTracker::Advance(const common::Time time) {
   CHECK_LE(time_, time);
   const double delta_t = common::ToSeconds(time - time_);
+  if(delta_t > 1)
+  {
+    LOG(INFO)<<"delta_t: "<<delta_t<<" imu_angular_velocity_:"<<imu_angular_velocity_.z();
+  }
   const Eigen::Quaterniond rotation =
       transform::AngleAxisVectorToRotationQuaternion(
           Eigen::Vector3d(imu_angular_velocity_ * delta_t));
   orientation_ = (orientation_ * rotation).normalized();
+
   gravity_vector_ = rotation.conjugate() * gravity_vector_;
   time_ = time;
 }

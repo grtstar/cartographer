@@ -92,6 +92,11 @@ class CollatedTrajectoryBuilder : public TrajectoryBuilderInterface {
     AddData(std::move(local_slam_result_data));
   }
 
+  void SetGlobalInitialPose(transform::Rigid3d & initial_pose) override
+  {
+    wrapped_trajectory_builder_->SetGlobalInitialPose(initial_pose);
+  }
+
  private:
   void AddData(std::unique_ptr<sensor::Data> data);
 

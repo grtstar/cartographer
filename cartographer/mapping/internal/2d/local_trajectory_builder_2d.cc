@@ -44,6 +44,7 @@ LocalTrajectoryBuilder2D::LocalTrajectoryBuilder2D(
       real_time_correlative_scan_matcher_(
           options_.real_time_correlative_scan_matcher_options()),
       ceres_scan_matcher_(options_.ceres_scan_matcher_options()),
+      in_location_inserter_(options_.in_location_inserter()),
       range_data_collator_(expected_range_sensor_ids) {}
 
 LocalTrajectoryBuilder2D::~LocalTrajectoryBuilder2D() {}
@@ -64,7 +65,8 @@ LocalTrajectoryBuilder2D::TransformToGravityAlignedFrameAndFilter(
 
 std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
     const common::Time time, const transform::Rigid2d& pose_prediction,
-    const sensor::PointCloud& filtered_gravity_aligned_point_cloud) {
+    const sensor::PointCloud& filtered_gravity_aligned_point_cloud,
+    double& match_score) {
   if (active_submaps_.submaps().empty()) {
     return absl::make_unique<transform::Rigid2d>(pose_prediction);
   }
@@ -79,6 +81,8 @@ std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
         pose_prediction, filtered_gravity_aligned_point_cloud,
         *matching_submap->grid(), &initial_ceres_pose);
     kRealTimeCorrelativeScanMatcherScoreMetric->Observe(score);
+    //LOG(INFO) << "online_correlative_scan_matching score :" << score;
+    match_score = score;
   }
 
   auto pose_observation = absl::make_unique<transform::Rigid2d>();
@@ -139,6 +143,7 @@ LocalTrajectoryBuilder2D::AddRangeData(
   std::vector<transform::Rigid3f> range_data_poses;
   range_data_poses.reserve(synchronized_data.ranges.size());
   bool warned = false;
+  // 对雷达点做时间矫正
   for (const auto& range : synchronized_data.ranges) {
     common::Time time_point = time + common::FromSeconds(range.point_time.time);
     if (time_point < extrapolator_->GetLastExtrapolatedTime()) {
@@ -184,7 +189,7 @@ LocalTrajectoryBuilder2D::AddRangeData(
     }
   }
   ++num_accumulated_;
-
+  // 积攒了 num_accumulated_ 数据才建图
   if (num_accumulated_ >= options_.num_accumulated_range_data()) {
     const common::Time current_sensor_time = synchronized_data.time;
     absl::optional<common::Duration> sensor_duration;
@@ -232,23 +237,43 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
     return nullptr;
   }
 
-  // local map frame <- gravity-aligned frame
-  std::unique_ptr<transform::Rigid2d> pose_estimate_2d =
-      ScanMatch(time, pose_prediction, filtered_gravity_aligned_point_cloud);
+  // LOG(INFO) << "ScanMatch Pose raw: " << non_gravity_aligned_pose_prediction;
+  // LOG(INFO) << "ScanMatch Pose in: " << pose_prediction << "
+  // gravity_alignment: " << gravity_alignment; local map frame <-
+  // gravity-aligned frame
+  double score = 0;
+  std::unique_ptr<transform::Rigid2d> pose_estimate_2d = ScanMatch(
+      time, pose_prediction, filtered_gravity_aligned_point_cloud, score);
   if (pose_estimate_2d == nullptr) {
     LOG(WARNING) << "Scan matching failed.";
     return nullptr;
   }
+
   const transform::Rigid3d pose_estimate =
       transform::Embed3D(*pose_estimate_2d) * gravity_alignment;
   extrapolator_->AddPose(time, pose_estimate);
+  // if (score > 0) {
+  //   LOG(INFO) << "ScanMatch Pose in: " << pose_prediction << " Pose out: " << pose_estimate << "Score: " << score;
+  // }
 
   sensor::RangeData range_data_in_local =
       TransformRangeData(gravity_aligned_range_data,
                          transform::Embed3D(pose_estimate_2d->cast<float>()));
-  std::unique_ptr<InsertionResult> insertion_result = InsertIntoSubmap(
-      time, range_data_in_local, filtered_gravity_aligned_point_cloud,
-      pose_estimate, gravity_alignment.rotation());
+  std::unique_ptr<InsertionResult> insertion_result = nullptr;
+  if (score < in_location_inserter_.insert_point_threshold()) 
+  {
+     LOG(INFO) << "ScanMatch Score: " << score << " insert threshold: " << in_location_inserter_.insert_point_threshold();
+      insertion_result = InsertIntoSubmap(
+          time, range_data_in_local, filtered_gravity_aligned_point_cloud,
+          pose_estimate, gravity_alignment.rotation());
+  }
+  else if(score < in_location_inserter_.donnot_insert_threshold())
+  {
+     LOG(INFO) << "ScanMatch Score: " << score << " donnot_insert_threshold: " << in_location_inserter_.donnot_insert_threshold();
+      insertion_result = InsertIntoSubmap(
+          time, range_data_in_local, filtered_gravity_aligned_point_cloud,
+          pose_estimate, gravity_alignment.rotation(), in_location_inserter_);
+  }
 
   const auto wall_time = std::chrono::steady_clock::now();
   if (last_wall_time_.has_value()) {
@@ -282,11 +307,29 @@ LocalTrajectoryBuilder2D::InsertIntoSubmap(
     const sensor::PointCloud& filtered_gravity_aligned_point_cloud,
     const transform::Rigid3d& pose_estimate,
     const Eigen::Quaterniond& gravity_alignment) {
-  if (motion_filter_.IsSimilar(time, pose_estimate)) {
-    return nullptr;
-  }
   std::vector<std::shared_ptr<const Submap2D>> insertion_submaps =
       active_submaps_.InsertRangeData(range_data_in_local);
+  return absl::make_unique<InsertionResult>(InsertionResult{
+      std::make_shared<const TrajectoryNode::Data>(TrajectoryNode::Data{
+          time,
+          gravity_alignment,
+          filtered_gravity_aligned_point_cloud,
+          {},  // 'high_resolution_point_cloud' is only used in 3D.
+          {},  // 'low_resolution_point_cloud' is only used in 3D.
+          {},  // 'rotational_scan_matcher_histogram' is only used in 3D.
+          pose_estimate}),
+      std::move(insertion_submaps)});
+}
+
+std::unique_ptr<LocalTrajectoryBuilder2D::InsertionResult>
+LocalTrajectoryBuilder2D::InsertIntoSubmap(
+    const common::Time time, const sensor::RangeData& range_data_in_local,
+    const sensor::PointCloud& filtered_gravity_aligned_point_cloud,
+    const transform::Rigid3d& pose_estimate,
+    const Eigen::Quaterniond& gravity_alignment,
+    const proto::InLocationInserterOptions& in_location_inserter) {
+  std::vector<std::shared_ptr<const Submap2D>> insertion_submaps =
+      active_submaps_.InsertRangeData(range_data_in_local, in_location_inserter);
   return absl::make_unique<InsertionResult>(InsertionResult{
       std::make_shared<const TrajectoryNode::Data>(TrajectoryNode::Data{
           time,
@@ -315,6 +358,11 @@ void LocalTrajectoryBuilder2D::AddOdometryData(
   extrapolator_->AddOdometryData(odometry_data);
 }
 
+void LocalTrajectoryBuilder2D::SetGlobalInitialPose(
+    transform::Rigid3d& initial_pose) {
+  this->initial_pose = initial_pose;
+}
+
 void LocalTrajectoryBuilder2D::InitializeExtrapolator(const common::Time time) {
   if (extrapolator_ != nullptr) {
     return;
@@ -328,7 +376,8 @@ void LocalTrajectoryBuilder2D::InitializeExtrapolator(const common::Time time) {
       options_.pose_extrapolator_options()
           .constant_velocity()
           .imu_gravity_time_constant());
-  extrapolator_->AddPose(time, transform::Rigid3d::Identity());
+  // extrapolator_->AddPose(time, transform::Rigid3d::Identity());
+  extrapolator_->AddPose(time, initial_pose);
 }
 
 void LocalTrajectoryBuilder2D::RegisterMetrics(

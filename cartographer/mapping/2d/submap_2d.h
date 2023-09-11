@@ -59,6 +59,10 @@ class Submap2D : public Submap {
   // submap must not be finished yet.
   void InsertRangeData(const sensor::RangeData& range_data,
                        const RangeDataInserterInterface* range_data_inserter);
+  void InsertRangeData(
+    const sensor::RangeData& range_data,
+    const RangeDataInserterInterface* range_data_inserter,
+    const proto::InLocationInserterOptions& options);
   void Finish();
 
  private:
@@ -86,6 +90,8 @@ class ActiveSubmaps2D {
   // Inserts 'range_data' into the Submap collection.
   std::vector<std::shared_ptr<const Submap2D>> InsertRangeData(
       const sensor::RangeData& range_data);
+  std::vector<std::shared_ptr<const Submap2D>> InsertRangeData(
+      const sensor::RangeData& range_data, const proto::InLocationInserterOptions& options);
 
   std::vector<std::shared_ptr<const Submap2D>> submaps() const;
 

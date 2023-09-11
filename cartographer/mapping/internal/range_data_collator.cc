@@ -27,6 +27,13 @@ namespace mapping {
 
 constexpr float RangeDataCollator::kDefaultIntensityValue;
 
+/*
+  为了对齐多个雷达传感器的时间数据
+  在存在多个雷达传感器的情形下，有可能
+  雷达 A timestamp = 0.2s => 扫描时间为 0.1 ~ 0.2s
+  雷达 B timestamp = 0.25s => 扫描时间为 0.15s ~ 0.25s
+*/
+
 sensor::TimedPointCloudOriginData RangeDataCollator::AddRangeData(
     const std::string& sensor_id,
     sensor::TimedPointCloudData timed_point_cloud_data) {

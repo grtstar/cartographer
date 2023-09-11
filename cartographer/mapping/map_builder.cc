@@ -113,6 +113,7 @@ int MapBuilder::AddTrajectoryBuilder(
   }
 
   if (options_.use_trajectory_builder_3d()) {
+#if 0
     std::unique_ptr<LocalTrajectoryBuilder3D> local_trajectory_builder;
     if (trajectory_options.has_trajectory_builder_3d_options()) {
       local_trajectory_builder = absl::make_unique<LocalTrajectoryBuilder3D>(
@@ -127,6 +128,7 @@ int MapBuilder::AddTrajectoryBuilder(
             std::move(local_trajectory_builder), trajectory_id,
             static_cast<PoseGraph3D*>(pose_graph_.get()),
             local_slam_result_callback, pose_graph_odometry_motion_filter)));
+#endif
   } else {
     std::unique_ptr<LocalTrajectoryBuilder2D> local_trajectory_builder;
     if (trajectory_options.has_trajectory_builder_2d_options()) {

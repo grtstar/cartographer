@@ -73,6 +73,7 @@ class LocalTrajectoryBuilder2D {
       const sensor::TimedPointCloudData& range_data);
   void AddImuData(const sensor::ImuData& imu_data);
   void AddOdometryData(const sensor::OdometryData& odometry_data);
+  void SetGlobalInitialPose(transform::Rigid3d & initial_pose);
 
   static void RegisterMetrics(metrics::FamilyFactory* family_factory);
 
@@ -89,12 +90,18 @@ class LocalTrajectoryBuilder2D {
       const sensor::PointCloud& filtered_gravity_aligned_point_cloud,
       const transform::Rigid3d& pose_estimate,
       const Eigen::Quaterniond& gravity_alignment);
+    std::unique_ptr<InsertionResult> InsertIntoSubmap(
+      common::Time time, const sensor::RangeData& range_data_in_local,
+      const sensor::PointCloud& filtered_gravity_aligned_point_cloud,
+      const transform::Rigid3d& pose_estimate,
+      const Eigen::Quaterniond& gravity_alignment, 
+      const proto::InLocationInserterOptions & in_location_inserter);
 
   // Scan matches 'filtered_gravity_aligned_point_cloud' and returns the
   // observed pose, or nullptr on failure.
   std::unique_ptr<transform::Rigid2d> ScanMatch(
       common::Time time, const transform::Rigid2d& pose_prediction,
-      const sensor::PointCloud& filtered_gravity_aligned_point_cloud);
+      const sensor::PointCloud& filtered_gravity_aligned_point_cloud, double & match_score);
 
   // Lazily constructs a PoseExtrapolator.
   void InitializeExtrapolator(common::Time time);
@@ -107,7 +114,9 @@ class LocalTrajectoryBuilder2D {
       real_time_correlative_scan_matcher_;
   scan_matching::CeresScanMatcher2D ceres_scan_matcher_;
 
+  proto::InLocationInserterOptions in_location_inserter_;
   std::unique_ptr<PoseExtrapolator> extrapolator_;
+  transform::Rigid3d initial_pose;
 
   int num_accumulated_ = 0;
   sensor::RangeData accumulated_range_data_;

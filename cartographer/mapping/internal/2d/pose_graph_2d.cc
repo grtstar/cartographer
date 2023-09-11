@@ -913,6 +913,11 @@ bool PoseGraph2D::CanAddWorkItemModifying(int trajectory_id) {
   if (it == data_.trajectories_state.end()) {
     return true;
   }
+  // add by grt
+  if(options_.optimize_every_n_nodes() == 0)
+  {
+    return false;
+  }
   if (it->second.state == TrajectoryState::FINISHED) {
     // TODO(gaschler): Replace all FATAL to WARNING after some testing.
     LOG(FATAL) << "trajectory_id " << trajectory_id
@@ -922,7 +927,7 @@ bool PoseGraph2D::CanAddWorkItemModifying(int trajectory_id) {
   }
   if (it->second.deletion_state !=
       InternalTrajectoryState::DeletionState::NORMAL) {
-    LOG(FATAL) << "trajectory_id " << trajectory_id
+    LOG(WARNING) << "trajectory_id " << trajectory_id
                << " has been scheduled for deletion "
                   "but modification is requested, skipping.";
     return false;

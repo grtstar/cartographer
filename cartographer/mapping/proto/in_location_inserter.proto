@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package cartographer.mapping.proto;
+
+message InLocationInserterOptions {
+  double donnot_insert_threshold = 1;
+  double insert_point_threshold = 2;
+  double max_hit_length = 3;
+  double max_miss_length = 4;
+  int32 hit_tolerance_grid = 5;
+  double hit_probability = 6;
+}

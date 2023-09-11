@@ -97,7 +97,9 @@ class GlobalTrajectoryBuilder : public mapping::TrajectoryBuilderInterface {
 
   void AddSensorData(const std::string& sensor_id,
                      const sensor::OdometryData& odometry_data) override {
+                      
     CHECK(odometry_data.pose.IsValid()) << odometry_data.pose;
+
     if (local_trajectory_builder_) {
       local_trajectory_builder_->AddOdometryData(odometry_data);
     }
@@ -134,6 +136,14 @@ class GlobalTrajectoryBuilder : public mapping::TrajectoryBuilderInterface {
     local_slam_result_data->AddToPoseGraph(trajectory_id_, pose_graph_);
   }
 
+  void SetGlobalInitialPose(transform::Rigid3d & initial_pose) override
+  {
+    if (local_trajectory_builder_) {
+      local_trajectory_builder_->SetGlobalInitialPose(initial_pose);
+    }
+    //pose_graph_->SetGlobalInitialPose(initial_pose);
+  }
+
  private:
   const int trajectory_id_;
   PoseGraph* const pose_graph_;
@@ -156,6 +166,7 @@ std::unique_ptr<TrajectoryBuilderInterface> CreateGlobalTrajectoryBuilder2D(
       local_slam_result_callback, pose_graph_odometry_motion_filter);
 }
 
+#if 0
 std::unique_ptr<TrajectoryBuilderInterface> CreateGlobalTrajectoryBuilder3D(
     std::unique_ptr<LocalTrajectoryBuilder3D> local_trajectory_builder,
     const int trajectory_id, mapping::PoseGraph3D* const pose_graph,
@@ -167,6 +178,7 @@ std::unique_ptr<TrajectoryBuilderInterface> CreateGlobalTrajectoryBuilder3D(
       std::move(local_trajectory_builder), trajectory_id, pose_graph,
       local_slam_result_callback, pose_graph_odometry_motion_filter);
 }
+#endif
 
 void GlobalTrajectoryBuilderRegisterMetrics(metrics::FamilyFactory* factory) {
   auto* results = factory->NewCounterFamily(

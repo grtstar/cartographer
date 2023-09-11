@@ -143,6 +143,17 @@ void Submap2D::InsertRangeData(
   set_num_range_data(num_range_data() + 1);
 }
 
+void Submap2D::InsertRangeData(
+    const sensor::RangeData& range_data,
+    const RangeDataInserterInterface* range_data_inserter,
+    const proto::InLocationInserterOptions& options) {
+  CHECK(grid_);
+  CHECK(!insertion_finished());
+  range_data_inserter->Insert(range_data, grid_.get(), options);
+  set_num_range_data(num_range_data() + 1);
+}
+
+
 void Submap2D::Finish() {
   CHECK(grid_);
   CHECK(!insertion_finished());
@@ -166,6 +177,21 @@ std::vector<std::shared_ptr<const Submap2D>> ActiveSubmaps2D::InsertRangeData(
   }
   for (auto& submap : submaps_) {
     submap->InsertRangeData(range_data, range_data_inserter_.get());
+  }
+  if (submaps_.front()->num_range_data() == 2 * options_.num_range_data()) {
+    submaps_.front()->Finish();
+  }
+  return submaps();
+}
+
+std::vector<std::shared_ptr<const Submap2D>> ActiveSubmaps2D::InsertRangeData(
+    const sensor::RangeData& range_data, const proto::InLocationInserterOptions& options) {
+  if (submaps_.empty() ||
+      submaps_.back()->num_range_data() == options_.num_range_data()) {
+    AddSubmap(range_data.origin.head<2>());
+  }
+  for (auto& submap : submaps_) {
+    submap->InsertRangeData(range_data, range_data_inserter_.get(), options);
   }
   if (submaps_.front()->num_range_data() == 2 * options_.num_range_data()) {
     submaps_.front()->Finish();

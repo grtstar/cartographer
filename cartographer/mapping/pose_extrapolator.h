@@ -54,6 +54,7 @@ class PoseExtrapolator : public PoseExtrapolatorInterface {
   void AddImuData(const sensor::ImuData& imu_data) override;
   void AddOdometryData(const sensor::OdometryData& odometry_data) override;
   transform::Rigid3d ExtrapolatePose(common::Time time) override;
+  transform::Rigid3d ExtrapolatePoseLog(common::Time time);
 
   ExtrapolationResult ExtrapolatePosesWithGravity(
       const std::vector<common::Time>& times) override;
@@ -86,6 +87,7 @@ class PoseExtrapolator : public PoseExtrapolatorInterface {
   std::unique_ptr<ImuTracker> odometry_imu_tracker_;
   std::unique_ptr<ImuTracker> extrapolation_imu_tracker_;
   TimedPose cached_extrapolated_pose_;
+  sensor::OdometryData reference_odometry_;
 
   std::deque<sensor::OdometryData> odometry_data_;
   Eigen::Vector3d linear_velocity_from_odometry_ = Eigen::Vector3d::Zero();
