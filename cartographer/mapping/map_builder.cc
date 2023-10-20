@@ -137,6 +137,7 @@ int MapBuilder::AddTrajectoryBuilder(
           SelectRangeSensorIds(expected_sensor_ids));
     }
     DCHECK(dynamic_cast<PoseGraph2D*>(pose_graph_.get()));
+    // 整理传感器的数据,传入 mapping::TrajectoryBuilderInterfac
     trajectory_builders_.push_back(absl::make_unique<CollatedTrajectoryBuilder>(
         trajectory_options, sensor_collator_.get(), trajectory_id,
         expected_sensor_ids,
@@ -145,6 +146,7 @@ int MapBuilder::AddTrajectoryBuilder(
             static_cast<PoseGraph2D*>(pose_graph_.get()),
             local_slam_result_callback, pose_graph_odometry_motion_filter)));
   }
+  //
   MaybeAddPureLocalizationTrimmer(trajectory_id, trajectory_options,
                                   pose_graph_.get());
 
@@ -210,6 +212,11 @@ void MapBuilder::SerializeState(bool include_unfinished_submaps,
 bool MapBuilder::SerializeStateToFile(bool include_unfinished_submaps,
                                       const std::string& filename) {
   io::ProtoStreamWriter writer(filename);
+  LOG(INFO) << "all_trajectory_builder_options_ size: "
+            << all_trajectory_builder_options_.size()
+            << "all_trajectory_builder_options_ sensor_id_size:"
+            << all_trajectory_builder_options_[0].sensor_id_size();
+
   io::WritePbStream(*pose_graph_, all_trajectory_builder_options_, &writer,
                     include_unfinished_submaps);
   return (writer.Close());

@@ -136,7 +136,7 @@ LocalTrajectoryBuilder2D::AddRangeData(
       time +
       common::FromSeconds(synchronized_data.ranges.front().point_time.time);
   if (time_first_point < extrapolator_->GetLastPoseTime()) {
-    LOG(INFO) << "Extrapolator is still initializing.";
+    LOG(INFO) << "Extrapolator is still initializing." << time_first_point << " < " << extrapolator_->GetLastPoseTime();
     return nullptr;
   }
 
@@ -361,6 +361,28 @@ void LocalTrajectoryBuilder2D::AddOdometryData(
 void LocalTrajectoryBuilder2D::SetGlobalInitialPose(
     transform::Rigid3d& initial_pose) {
   this->initial_pose = initial_pose;
+}
+
+void LocalTrajectoryBuilder2D::ResetExtrapolator(
+    common::Time time, transform::Rigid3d& pose_estimate) {
+  LOG(INFO) << "1-----------------------------";
+  if (extrapolator_ != nullptr) {
+    extrapolator_.reset();
+  }
+  LOG(INFO) << "2-----------------------------";
+
+  extrapolator_ = absl::make_unique<PoseExtrapolator>(
+      ::cartographer::common::FromSeconds(options_.pose_extrapolator_options()
+                                              .constant_velocity()
+                                              .pose_queue_duration()),
+      options_.pose_extrapolator_options()
+          .constant_velocity()
+          .imu_gravity_time_constant());
+  LOG(INFO) << "3-----------------------------";
+
+  extrapolator_->AddPose(time, pose_estimate);
+  LOG(INFO) << "4-----------------------------";
+
 }
 
 void LocalTrajectoryBuilder2D::InitializeExtrapolator(const common::Time time) {

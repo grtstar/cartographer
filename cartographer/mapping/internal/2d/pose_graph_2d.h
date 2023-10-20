@@ -159,6 +159,11 @@ class PoseGraph2D : public PoseGraph {
 
   static void RegisterMetrics(metrics::FamilyFactory* family_factory);
 
+  // add by grt
+  const proto::PoseGraphOptions GetOptions() const { return options_; }
+  void UpdateSubmap(const int trajectory_id,
+    const std::vector<std::shared_ptr<const Submap2D>>& insertion_submaps);
+
  private:
   MapById<SubmapId, PoseGraphInterface::SubmapData> GetSubmapDataUnderLock()
       const EXCLUSIVE_LOCKS_REQUIRED(mutex_);
@@ -178,6 +183,8 @@ class PoseGraph2D : public PoseGraph {
       int trajectory_id,
       const std::vector<std::shared_ptr<const Submap2D>>& insertion_submaps,
       const transform::Rigid3d& optimized_pose) LOCKS_EXCLUDED(mutex_);
+
+
 
   // Grows the optimization problem to have an entry for every element of
   // 'insertion_submaps'. Returns the IDs for the 'insertion_submaps'.

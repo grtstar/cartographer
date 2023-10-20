@@ -65,6 +65,12 @@ ProtoStreamDeserializer::ProtoStreamDeserializer(
          "PoseGraph, got field tag "
       << all_trajectory_builder_options_.data_case();
 
+  LOG(INFO) << "Deserializing from stream with "
+            << pose_graph_.pose_graph().trajectory_size()
+            << " trajectories (with submaps) and "
+            << all_trajectory_builder_options_.all_trajectory_builder_options()
+                   .options_with_sensor_ids_size()
+            << " trajectory builders.";
   CHECK_EQ(pose_graph_.pose_graph().trajectory_size(),
            all_trajectory_builder_options_.all_trajectory_builder_options()
                .options_with_sensor_ids_size());

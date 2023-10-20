@@ -65,6 +65,8 @@ class GlobalTrajectoryBuilder : public mapping::TrajectoryBuilderInterface {
       // The range data has not been fully accumulated yet.
       return;
     }
+    // 这里进行全局匹配,如果不需要全局匹配,则直接返回
+
     kLocalSlamMatchingResults->Increment();
     std::unique_ptr<InsertionResult> insertion_result;
     if (matching_result->insertion_result != nullptr) {
@@ -73,11 +75,14 @@ class GlobalTrajectoryBuilder : public mapping::TrajectoryBuilderInterface {
           matching_result->insertion_result->constant_data, trajectory_id_,
           matching_result->insertion_result->insertion_submaps);
       CHECK_EQ(node_id.trajectory_id, trajectory_id_);
-      insertion_result = absl::make_unique<InsertionResult>(InsertionResult{
+      
+      if(node_id.node_index >= 0){
+        insertion_result = absl::make_unique<InsertionResult>(InsertionResult{
           node_id, matching_result->insertion_result->constant_data,
           std::vector<std::shared_ptr<const Submap>>(
               matching_result->insertion_result->insertion_submaps.begin(),
               matching_result->insertion_result->insertion_submaps.end())});
+      }
     }
     if (local_slam_result_callback_) {
       local_slam_result_callback_(
@@ -97,7 +102,6 @@ class GlobalTrajectoryBuilder : public mapping::TrajectoryBuilderInterface {
 
   void AddSensorData(const std::string& sensor_id,
                      const sensor::OdometryData& odometry_data) override {
-                      
     CHECK(odometry_data.pose.IsValid()) << odometry_data.pose;
 
     if (local_trajectory_builder_) {
@@ -136,12 +140,17 @@ class GlobalTrajectoryBuilder : public mapping::TrajectoryBuilderInterface {
     local_slam_result_data->AddToPoseGraph(trajectory_id_, pose_graph_);
   }
 
-  void SetGlobalInitialPose(transform::Rigid3d & initial_pose) override
-  {
+  void SetGlobalInitialPose(transform::Rigid3d& initial_pose) override {
     if (local_trajectory_builder_) {
       local_trajectory_builder_->SetGlobalInitialPose(initial_pose);
     }
-    //pose_graph_->SetGlobalInitialPose(initial_pose);
+    // pose_graph_->SetGlobalInitialPose(initial_pose);
+  }
+
+  void ResetExtrapolator(common::Time time, transform::Rigid3d& pose_estimate) override {
+    if (local_trajectory_builder_) {
+      local_trajectory_builder_->ResetExtrapolator(time, pose_estimate);
+    }
   }
 
  private:

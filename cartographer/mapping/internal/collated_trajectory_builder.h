@@ -97,6 +97,11 @@ class CollatedTrajectoryBuilder : public TrajectoryBuilderInterface {
     wrapped_trajectory_builder_->SetGlobalInitialPose(initial_pose);
   }
 
+  void ResetExtrapolator(common::Time time, transform::Rigid3d & pose_estimate) override
+  {
+    wrapped_trajectory_builder_->ResetExtrapolator(time, pose_estimate);
+  }
+
  private:
   void AddData(std::unique_ptr<sensor::Data> data);
 

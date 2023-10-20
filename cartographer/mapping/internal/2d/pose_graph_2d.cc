@@ -151,10 +151,30 @@ NodeId PoseGraph2D::AppendNode(
   return node_id;
 }
 
+void PoseGraph2D::UpdateSubmap(
+    const int trajectory_id,
+    const std::vector<std::shared_ptr<const Submap2D>>& insertion_submaps) {
+  if (data_.submap_data.SizeOfTrajectoryOrZero(trajectory_id) == 0 ||
+      std::prev(data_.submap_data.EndOfTrajectory(trajectory_id))
+              ->data.submap != insertion_submaps.back()) {
+    // We grow 'data_.submap_data' as needed. This code assumes that the first
+    // time we see a new submap is as 'insertion_submaps.back()'.
+    const SubmapId submap_id =
+        data_.submap_data.Append(trajectory_id, InternalSubmapData());
+    data_.submap_data.at(submap_id).submap = insertion_submaps.back();
+    LOG(INFO) << "Inserted submap " << submap_id << ".";
+    kActiveSubmapsMetric->Increment();
+  }
+}
+
 NodeId PoseGraph2D::AddNode(
     std::shared_ptr<const TrajectoryNode::Data> constant_data,
     const int trajectory_id,
     const std::vector<std::shared_ptr<const Submap2D>>& insertion_submaps) {
+  if (options_.optimize_every_n_nodes() == 0) {
+    UpdateSubmap(trajectory_id, insertion_submaps);
+    return {trajectory_id, -1};
+  }
   const transform::Rigid3d optimized_pose(
       GetLocalToGlobalTransform(trajectory_id) * constant_data->local_pose);
 
@@ -208,6 +228,9 @@ void PoseGraph2D::AddTrajectoryIfNeeded(const int trajectory_id) {
 
 void PoseGraph2D::AddImuData(const int trajectory_id,
                              const sensor::ImuData& imu_data) {
+  if (options_.optimize_every_n_nodes() == 0) {
+    return;
+  }
   AddWorkItem([=]() LOCKS_EXCLUDED(mutex_) {
     absl::MutexLock locker(&mutex_);
     if (CanAddWorkItemModifying(trajectory_id)) {
@@ -219,6 +242,9 @@ void PoseGraph2D::AddImuData(const int trajectory_id,
 
 void PoseGraph2D::AddOdometryData(const int trajectory_id,
                                   const sensor::OdometryData& odometry_data) {
+  if (options_.optimize_every_n_nodes() == 0) {
+    return;
+  }
   AddWorkItem([=]() LOCKS_EXCLUDED(mutex_) {
     absl::MutexLock locker(&mutex_);
     if (CanAddWorkItemModifying(trajectory_id)) {
@@ -231,6 +257,9 @@ void PoseGraph2D::AddOdometryData(const int trajectory_id,
 void PoseGraph2D::AddFixedFramePoseData(
     const int trajectory_id,
     const sensor::FixedFramePoseData& fixed_frame_pose_data) {
+  if (options_.optimize_every_n_nodes() == 0) {
+    return;
+  }
   AddWorkItem([=]() LOCKS_EXCLUDED(mutex_) {
     absl::MutexLock locker(&mutex_);
     if (CanAddWorkItemModifying(trajectory_id)) {
@@ -243,6 +272,9 @@ void PoseGraph2D::AddFixedFramePoseData(
 
 void PoseGraph2D::AddLandmarkData(int trajectory_id,
                                   const sensor::LandmarkData& landmark_data) {
+  if (options_.optimize_every_n_nodes() == 0) {
+    return;
+  }
   AddWorkItem([=]() LOCKS_EXCLUDED(mutex_) {
     absl::MutexLock locker(&mutex_);
     if (CanAddWorkItemModifying(trajectory_id)) {
@@ -913,11 +945,6 @@ bool PoseGraph2D::CanAddWorkItemModifying(int trajectory_id) {
   if (it == data_.trajectories_state.end()) {
     return true;
   }
-  // add by grt
-  if(options_.optimize_every_n_nodes() == 0)
-  {
-    return false;
-  }
   if (it->second.state == TrajectoryState::FINISHED) {
     // TODO(gaschler): Replace all FATAL to WARNING after some testing.
     LOG(FATAL) << "trajectory_id " << trajectory_id
@@ -928,8 +955,8 @@ bool PoseGraph2D::CanAddWorkItemModifying(int trajectory_id) {
   if (it->second.deletion_state !=
       InternalTrajectoryState::DeletionState::NORMAL) {
     LOG(WARNING) << "trajectory_id " << trajectory_id
-               << " has been scheduled for deletion "
-                  "but modification is requested, skipping.";
+                 << " has been scheduled for deletion "
+                    "but modification is requested, skipping.";
     return false;
   }
   if (it->second.state == TrajectoryState::DELETED) {

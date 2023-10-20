@@ -68,8 +68,12 @@ void OrderedMultiQueue::Add(const QueueKey& queue_key,
         << "Ignored data for queue: '" << queue_key << "'";
     return;
   }
-  it->second.queue.Push(std::move(data));
-  Dispatch();
+  const auto* last_data = it->second.queue.Peek<Data>();
+  if(last_data == nullptr || data->GetTime() > last_data->GetTime())
+  {
+    it->second.queue.Push(std::move(data));
+    Dispatch();
+  }
 }
 
 void OrderedMultiQueue::Flush() {
@@ -102,7 +106,6 @@ void OrderedMultiQueue::Dispatch() {
           continue;
         }
         CannotMakeProgress(it->first);
-        //// return;
         // add by dh, 在某一个传感器无数据时,允许其他传感器数据继续输入
         it++;
         continue; 
@@ -112,14 +115,19 @@ void OrderedMultiQueue::Dispatch() {
         next_queue = &it->second;
         next_queue_key = it->first;
       }
-      // CHECK_LE(last_dispatched_time_, next_data->GetTime())
-      //     << "Non-sorted data added to queue: '" << it->first << "'";
+      if(last_dispatched_time_ > next_data->GetTime())
+      {
+        LOG(ERROR) << "Non-sorted data added to queue: '" << it->first << "'";
+      }
       ++it;
     }
 
     if (next_data == nullptr) {
       //// block by dh, 在某一个传感器无数据时,允许其他传感器数据继续输入
-      //CHECK(queues_.empty());
+      if(queues_.empty())
+      {
+        LOG(ERROR) << "queues_ is empty";
+      }
       return;
     }
 
@@ -134,8 +142,15 @@ void OrderedMultiQueue::Dispatch() {
     }
     if (next_data->GetTime() >= common_start_time) {
       // Happy case, we are beyond the 'common_start_time' already.
-      last_dispatched_time_ = next_data->GetTime();
-      next_queue->callback(next_queue->queue.Pop());
+      if(last_dispatched_time_ < next_data->GetTime())
+      {
+        last_dispatched_time_ = next_data->GetTime();
+        next_queue->callback(next_queue->queue.Pop());
+      }
+      else
+      {
+        next_queue->queue.Pop();
+      }
     } else if (next_queue->queue.Size() < 2) {
       if (!next_queue->finished) {
         // We cannot decide whether to drop or dispatch this yet.
@@ -150,8 +165,11 @@ void OrderedMultiQueue::Dispatch() {
       // first packet to dispatch from this queue.
       std::unique_ptr<Data> next_data_owner = next_queue->queue.Pop();
       if (next_queue->queue.Peek<Data>()->GetTime() > common_start_time) {
-        last_dispatched_time_ = next_data->GetTime();
-        next_queue->callback(std::move(next_data_owner));
+        if(last_dispatched_time_ < next_data->GetTime())
+        {
+          last_dispatched_time_ = next_data->GetTime();
+          next_queue->callback(std::move(next_data_owner));
+        }
       }
     }
   }

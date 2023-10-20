@@ -74,6 +74,7 @@ class LocalTrajectoryBuilder2D {
   void AddImuData(const sensor::ImuData& imu_data);
   void AddOdometryData(const sensor::OdometryData& odometry_data);
   void SetGlobalInitialPose(transform::Rigid3d & initial_pose);
+  void ResetExtrapolator(common::Time time, transform::Rigid3d & pose_estimate);
 
   static void RegisterMetrics(metrics::FamilyFactory* family_factory);
 
