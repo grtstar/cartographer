@@ -175,7 +175,7 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
   const TimedPose& newest_timed_pose = timed_pose_queue_.back();
   CHECK_GE(time, newest_timed_pose.time);
   auto duration = common::ToSeconds(time - newest_timed_pose.time);
-  if (duration > 0.3) {
+  if (duration > 1.0) {
     if (cached_extrapolated_pose_.time != time) {
       sensor::OdometryData newest_odomety_ =
           GetTimedOdomety(odometry_data_, time);
@@ -184,6 +184,7 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
       cached_extrapolated_pose_ =
           TimedPose{time, newest_timed_pose.pose * odom_diff};
     }
+    
   } else {
     if (cached_extrapolated_pose_.time != time) {
       const Eigen::Vector3d translation =
@@ -195,7 +196,6 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
           TimedPose{time, transform::Rigid3d{translation, rotation}};
     }
   }
-
   return cached_extrapolated_pose_.pose;
 #endif
 }

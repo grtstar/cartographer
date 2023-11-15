@@ -160,7 +160,7 @@ void CastRays(const sensor::RangeData& range_data,
   auto origin = range_data.origin.head<2>();
   for (const sensor::RangefinderPoint& hit : range_data.returns) {
     auto hit_pos = hit.position.head<2>();
-    if(origin[0]-hit_pos[0] > options.max_hit_length() || origin[1]-hit_pos[1] > options.max_hit_length())
+    if(std::abs(origin[0]-hit_pos[0]) > options.max_hit_length() || std::abs(origin[1]-hit_pos[1]) > options.max_hit_length())
     {
       continue;
     }

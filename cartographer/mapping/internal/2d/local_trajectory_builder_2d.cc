@@ -45,7 +45,11 @@ LocalTrajectoryBuilder2D::LocalTrajectoryBuilder2D(
           options_.real_time_correlative_scan_matcher_options()),
       ceres_scan_matcher_(options_.ceres_scan_matcher_options()),
       in_location_inserter_(options_.in_location_inserter()),
-      range_data_collator_(expected_range_sensor_ids) {}
+      range_data_collator_(expected_range_sensor_ids) {
+        auto opt = options_.real_time_correlative_scan_matcher_options();
+        opt.set_angular_search_window(opt.angular_search_window() * 2);
+        real_time_retry_scan_matcher_ = new scan_matching::RealTimeCorrelativeScanMatcher2D(opt);
+      }
 
 LocalTrajectoryBuilder2D::~LocalTrajectoryBuilder2D() {}
 
@@ -82,6 +86,14 @@ std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
         *matching_submap->grid(), &initial_ceres_pose);
     kRealTimeCorrelativeScanMatcherScoreMetric->Observe(score);
     //LOG(INFO) << "online_correlative_scan_matching score :" << score;
+    if(score < 0.4)
+    {
+      match_score = real_time_retry_scan_matcher_->Match(
+        pose_prediction, filtered_gravity_aligned_point_cloud,
+        *matching_submap->grid(), &initial_ceres_pose);
+      LOG(WARNING) << "scan_matching score low :" << score << "rematch score:" << match_score;
+
+    }
     match_score = score;
   }
 
@@ -238,9 +250,9 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
   }
 
   // LOG(INFO) << "ScanMatch Pose raw: " << non_gravity_aligned_pose_prediction;
-  // LOG(INFO) << "ScanMatch Pose in: " << pose_prediction << "
-  // gravity_alignment: " << gravity_alignment; local map frame <-
-  // gravity-aligned frame
+  // LOG(INFO) << "ScanMatch Pose in: " << pose_prediction << "gravity_alignment: " << gravity_alignment; 
+  // local map frame <- gravity-aligned frame
+  static double last_score = 0;
   double score = 0;
   std::unique_ptr<transform::Rigid2d> pose_estimate_2d = ScanMatch(
       time, pose_prediction, filtered_gravity_aligned_point_cloud, score);
@@ -249,12 +261,19 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
     return nullptr;
   }
 
+  if(last_score > 0.8 && score < 0.5)
+  {
+    LOG(WARNING) << "Scan matching weak:" << score;
+    return nullptr;
+  }
+  last_score = score;
+
   const transform::Rigid3d pose_estimate =
       transform::Embed3D(*pose_estimate_2d) * gravity_alignment;
   extrapolator_->AddPose(time, pose_estimate);
-  // if (score > 0) {
-  //   LOG(INFO) << "ScanMatch Pose in: " << pose_prediction << " Pose out: " << pose_estimate << "Score: " << score;
-  // }
+  if (score > 0) {
+    // LOG(INFO) << "ScanMatch Pose in: " << pose_prediction  << "("<<pose_prediction.normalized_angle() * 180 / 3.1415 <<")"<<"Score: " << score;
+  }
 
   sensor::RangeData range_data_in_local =
       TransformRangeData(gravity_aligned_range_data,
@@ -262,14 +281,14 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
   std::unique_ptr<InsertionResult> insertion_result = nullptr;
   if (score < in_location_inserter_.insert_point_threshold()) 
   {
-     LOG(INFO) << "ScanMatch Score: " << score << " insert threshold: " << in_location_inserter_.insert_point_threshold();
+    //  LOG(INFO) << "ScanMatch Score: " << score << " insert threshold: " << in_location_inserter_.insert_point_threshold();
       insertion_result = InsertIntoSubmap(
           time, range_data_in_local, filtered_gravity_aligned_point_cloud,
           pose_estimate, gravity_alignment.rotation());
   }
   else if(score < in_location_inserter_.donnot_insert_threshold())
   {
-     LOG(INFO) << "ScanMatch Score: " << score << " donnot_insert_threshold: " << in_location_inserter_.donnot_insert_threshold();
+    //  LOG(INFO) << "ScanMatch Score: " << score << " donnot_insert_threshold: " << in_location_inserter_.donnot_insert_threshold();
       insertion_result = InsertIntoSubmap(
           time, range_data_in_local, filtered_gravity_aligned_point_cloud,
           pose_estimate, gravity_alignment.rotation(), in_location_inserter_);
@@ -282,6 +301,10 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
     if (sensor_duration.has_value()) {
       kLocalSlamRealTimeRatio->Set(common::ToSeconds(sensor_duration.value()) /
                                    common::ToSeconds(wall_time_duration));
+    }
+    if(common::ToSeconds(wall_time_duration) > 0.2)
+    {
+      LOG(WARNING) << "ScanMatch wall_time_duration: " << common::ToSeconds(wall_time_duration);
     }
   }
   const double thread_cpu_time_seconds = common::GetThreadCpuTimeSeconds();

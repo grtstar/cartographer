@@ -113,6 +113,8 @@ class LocalTrajectoryBuilder2D {
   MotionFilter motion_filter_;
   scan_matching::RealTimeCorrelativeScanMatcher2D
       real_time_correlative_scan_matcher_;
+  scan_matching::RealTimeCorrelativeScanMatcher2D *
+      real_time_retry_scan_matcher_;
   scan_matching::CeresScanMatcher2D ceres_scan_matcher_;
 
   proto::InLocationInserterOptions in_location_inserter_;

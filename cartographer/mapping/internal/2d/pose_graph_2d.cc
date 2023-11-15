@@ -172,6 +172,7 @@ NodeId PoseGraph2D::AddNode(
     const int trajectory_id,
     const std::vector<std::shared_ptr<const Submap2D>>& insertion_submaps) {
   if (options_.optimize_every_n_nodes() == 0) {
+    AddTrajectoryIfNeeded(trajectory_id);
     UpdateSubmap(trajectory_id, insertion_submaps);
     return {trajectory_id, -1};
   }
