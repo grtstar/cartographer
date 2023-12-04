@@ -63,6 +63,10 @@ class Submap2D : public Submap {
     const sensor::RangeData& range_data,
     const RangeDataInserterInterface* range_data_inserter,
     const proto::InLocationInserterOptions& options);
+
+  int GetChangedCountByInsert(const sensor::RangeData& range_data,
+                       const RangeDataInserterInterface* range_data_inserter);
+
   void Finish();
 
  private:
@@ -92,6 +96,8 @@ class ActiveSubmaps2D {
       const sensor::RangeData& range_data);
   std::vector<std::shared_ptr<const Submap2D>> InsertRangeData(
       const sensor::RangeData& range_data, const proto::InLocationInserterOptions& options);
+
+  bool IsWrongFrame(const sensor::RangeData& range_data);
 
   std::vector<std::shared_ptr<const Submap2D>> submaps() const;
 

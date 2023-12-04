@@ -40,6 +40,7 @@ class RangeDataInserterInterface {
                       GridInterface* grid) const = 0;
   virtual void Insert(const sensor::RangeData& range_data, GridInterface* grid,
                       const proto::InLocationInserterOptions& options) const {}
+  virtual int GetChangedCountByInsert(const sensor::RangeData& range_data, GridInterface* grid) const {return 0;}
 };
 
 }  // namespace mapping

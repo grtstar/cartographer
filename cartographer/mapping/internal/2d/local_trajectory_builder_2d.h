@@ -80,7 +80,8 @@ class LocalTrajectoryBuilder2D {
 
  private:
   std::unique_ptr<MatchingResult> AddAccumulatedRangeData(
-      common::Time time, const sensor::RangeData& gravity_aligned_range_data,
+      common::Time time, const Eigen::Vector3f & fit_vector,
+      const sensor::RangeData& gravity_aligned_range_data,
       const transform::Rigid3d& gravity_alignment,
       const absl::optional<common::Duration>& sensor_duration);
   sensor::RangeData TransformToGravityAlignedFrameAndFilter(
@@ -113,8 +114,10 @@ class LocalTrajectoryBuilder2D {
   MotionFilter motion_filter_;
   scan_matching::RealTimeCorrelativeScanMatcher2D
       real_time_correlative_scan_matcher_;
-  scan_matching::RealTimeCorrelativeScanMatcher2D *
-      real_time_retry_scan_matcher_;
+  std::shared_ptr<scan_matching::RealTimeCorrelativeScanMatcher2D>
+      real_time_rotation_rescan_matcher_;
+    std::shared_ptr<scan_matching::RealTimeCorrelativeScanMatcher2D>
+      real_time_translation_rescan_matcher_;    
   scan_matching::CeresScanMatcher2D ceres_scan_matcher_;
 
   proto::InLocationInserterOptions in_location_inserter_;

@@ -30,6 +30,7 @@ struct TimedPointCloudData {
   TimedPointCloud ranges;
   // 'intensities' has to be same size as 'ranges', or empty.
   std::vector<float> intensities;
+  Eigen::Vector3f fit_angle;
 };
 
 struct TimedPointCloudOriginData {
