@@ -259,7 +259,12 @@ Eigen::Quaterniond PoseExtrapolator::EstimateGravityOrientation(
   AdvanceImuTracker(time, &imu_tracker);
   return imu_tracker.orientation();
 #else
-  return odometry_data_.back().pose.rotation();
+  auto matrix = odometry_data_.back().pose.rotation().toRotationMatrix();
+  Eigen::Vector3d v(matrix(2, 0), matrix(2, 1), matrix(2, 2));
+  Eigen::AngleAxisd rotation_vector(0, v);
+  return Eigen::Quaterniond(rotation_vector);
+  //return odometry_data_.back().pose.rotation();
+  //return Eigen::Quaterniond::Identity();
 #endif
 }
 

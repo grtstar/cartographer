@@ -313,31 +313,31 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
     double a2 = common::NormalizeAngleDifference(a0 + M_PI);
     double a3 = common::NormalizeAngleDifference(a0 + M_PI + M_PI_2);
     LOG(INFO) << "robot yaw maybe: " << common::RadToDeg(a0) << "°, " << common::RadToDeg(a1) << "°, " << common::RadToDeg(a2) << "°, " << common::RadToDeg(a3) << "°";
-    Eigen::Vector3d euler = pose_estimate.rotation().toRotationMatrix().eulerAngles(2, 1, 0);
+    Eigen::Vector3d euler = pose_estimate.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
+    LOG(INFO) << "euler: " << common::RadToDeg(euler.x()) << "°," << common::RadToDeg(euler.y()) << "°," << common::RadToDeg(euler.z()) << "°";
     LOG(INFO) << "robot match yaw: " << common::RadToDeg(pose_estimate_2d->rotation().angle()) << "°, " << common::RadToDeg(euler.z()) << "°";
-
     if(std::abs(common::NormalizeAngleDifference(a0-euler.z())) < common::DegToRad(5))
     {
       LOG(INFO)<< "robot a0: " << common::RadToDeg(a0) << "°";
-      //pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a0));
+      pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a0));
     }
     else if(std::abs(common::NormalizeAngleDifference(a1-euler.z())) < common::DegToRad(5))
     {
       LOG(INFO)<< "robot a1: " << common::RadToDeg(a1) << "°";
-      //pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a1));
+      pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a1));
     }
     else if(std::abs(common::NormalizeAngleDifference(a2-euler.z())) < common::DegToRad(5))
     {
       LOG(INFO)<< "robot a2: " << common::RadToDeg(a2) << "°";
-      //pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a2));
+      pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a2));
     }
     else if(std::abs(common::NormalizeAngleDifference(a3-euler.z())) < common::DegToRad(5))
     {
       LOG(INFO)<< "robot a3: " << common::RadToDeg(a3) << "°";
-      //pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a3));
+      pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a3));
     }
-    euler = pose_estimate.rotation().toRotationMatrix().eulerAngles(2, 1, 0);
-    LOG(INFO) << "robot new yaw: " << common::RadToDeg(euler.z()) << "°";
+    euler = pose_estimate.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
+    LOG(INFO) << "new euler: " << common::RadToDeg(euler.x()) << "°," << common::RadToDeg(euler.y()) << "°," << common::RadToDeg(euler.z()) << "°";
   }
 
   if (score > 0) {
