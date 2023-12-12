@@ -291,7 +291,8 @@ bool FastCorrelativeScanMatcher2D::MatchWithSearchParameters(
       LOG(INFO) << "grid value: "
                 << grid_.GetCorrespondenceCost(xy_index);
     }
-
+    LOG(INFO) << "grid0 value: "
+                << grid_.GetCorrespondenceCost(Eigen::Array2i(0,0));
     return true;
   }
   return false;
