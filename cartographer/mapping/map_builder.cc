@@ -99,6 +99,58 @@ MapBuilder::MapBuilder(const proto::MapBuilderOptions& options)
   }
 }
 
+int MapBuilder::RebuildTrajectoryBuilder(
+    int trajectory_id, const std::set<SensorId>& expected_sensor_ids,
+    const proto::TrajectoryBuilderOptions& trajectory_options,
+    LocalSlamResultCallback local_slam_result_callback) {
+  if (trajectory_builders_.size() <= (size_t)trajectory_id) {
+    return -1;
+  }
+
+  absl::optional<MotionFilter> pose_graph_odometry_motion_filter;
+  if (trajectory_options.has_pose_graph_odometry_motion_filter()) {
+    LOG(INFO) << "Using a motion filter for adding odometry to the pose graph.";
+    pose_graph_odometry_motion_filter.emplace(
+        MotionFilter(trajectory_options.pose_graph_odometry_motion_filter()));
+  }
+
+  std::unique_ptr<LocalTrajectoryBuilder2D> local_trajectory_builder;
+  if (trajectory_options.has_trajectory_builder_2d_options()) {
+    local_trajectory_builder = absl::make_unique<LocalTrajectoryBuilder2D>(
+        trajectory_options.trajectory_builder_2d_options(),
+        SelectRangeSensorIds(expected_sensor_ids));
+  }
+  trajectory_builders_.at(trajectory_id) =
+      absl::make_unique<CollatedTrajectoryBuilder>(
+          trajectory_options, sensor_collator_.get(), trajectory_id,
+          expected_sensor_ids,
+          CreateGlobalTrajectoryBuilder2D(
+              std::move(local_trajectory_builder), trajectory_id,
+              static_cast<PoseGraph2D*>(pose_graph_.get()),
+              local_slam_result_callback, pose_graph_odometry_motion_filter));
+  //
+  MaybeAddPureLocalizationTrimmer(trajectory_id, trajectory_options,
+                                  pose_graph_.get());
+
+  if (trajectory_options.has_initial_trajectory_pose()) {
+    const auto& initial_trajectory_pose =
+        trajectory_options.initial_trajectory_pose();
+    pose_graph_->SetInitialTrajectoryPose(
+        trajectory_id, initial_trajectory_pose.to_trajectory_id(),
+        transform::ToRigid3(initial_trajectory_pose.relative_pose()),
+        common::FromUniversal(initial_trajectory_pose.timestamp()));
+  }
+  proto::TrajectoryBuilderOptionsWithSensorIds options_with_sensor_ids_proto;
+  for (const auto& sensor_id : expected_sensor_ids) {
+    *options_with_sensor_ids_proto.add_sensor_id() = ToProto(sensor_id);
+  }
+  *options_with_sensor_ids_proto.mutable_trajectory_builder_options() =
+      trajectory_options;
+  all_trajectory_builder_options_.push_back(options_with_sensor_ids_proto);
+  CHECK_EQ(trajectory_builders_.size(), all_trajectory_builder_options_.size());
+  return trajectory_id;
+}
+
 int MapBuilder::AddTrajectoryBuilder(
     const std::set<SensorId>& expected_sensor_ids,
     const proto::TrajectoryBuilderOptions& trajectory_options,

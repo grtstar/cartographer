@@ -149,11 +149,13 @@ class FastCorrelativeScanMatcher2D {
       const SearchParameters& search_parameters) const;
   std::vector<Candidate2D> GenerateLowestResolutionCandidates(
       const SearchParameters& search_parameters) const;
-  void ScoreCandidates(const PrecomputationGrid2D& precomputation_grid,
+  void ScoreCandidates(const Eigen::Array2i initial_index,
+                       const PrecomputationGrid2D& precomputation_grid,
                        const std::vector<DiscreteScan2D>& discrete_scans,
                        const SearchParameters& search_parameters,
                        std::vector<Candidate2D>* const candidates, bool in_free = false) const;
-  Candidate2D BranchAndBound(const std::vector<DiscreteScan2D>& discrete_scans,
+  Candidate2D BranchAndBound(const Eigen::Array2i initial_index,
+                             const std::vector<DiscreteScan2D>& discrete_scans,
                              const SearchParameters& search_parameters,
                              const std::vector<Candidate2D>& candidates,
                              int candidate_depth, float min_score, std::vector<Candidate2D>& candidates_final) const;

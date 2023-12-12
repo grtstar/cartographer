@@ -43,6 +43,12 @@ class MapBuilder : public MapBuilderInterface {
       const proto::TrajectoryBuilderOptions &trajectory_options,
       LocalSlamResultCallback local_slam_result_callback) override;
 
+  int RebuildTrajectoryBuilder(
+    int trajectory_id,
+    const std::set<SensorId>& expected_sensor_ids,
+    const proto::TrajectoryBuilderOptions& trajectory_options,
+    LocalSlamResultCallback local_slam_result_callback) override;
+
   int AddTrajectoryForDeserialization(
       const proto::TrajectoryBuilderOptionsWithSensorIds
           &options_with_sensor_ids_proto) override;
