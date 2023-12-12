@@ -189,6 +189,7 @@ FastCorrelativeScanMatcher2D::FastCorrelativeScanMatcher2D(
     const Grid2D& grid,
     const proto::FastCorrelativeScanMatcherOptions2D& options)
     : options_(options),
+      grid_(grid),
       limits_(grid.limits()),
       precomputation_grid_stack_(
           absl::make_unique<PrecomputationGridStack2D>(grid, options)) {}
@@ -247,15 +248,50 @@ bool FastCorrelativeScanMatcher2D::MatchWithSearchParameters(
 
   const std::vector<Candidate2D> lowest_resolution_candidates =
       ComputeLowestResolutionCandidates(discrete_scans, search_parameters);
+  std::vector<Candidate2D> candidates_final;
   const Candidate2D best_candidate = BranchAndBound(
       discrete_scans, search_parameters, lowest_resolution_candidates,
-      precomputation_grid_stack_->max_depth(), min_score);
+      precomputation_grid_stack_->max_depth(), min_score, candidates_final);
   if (best_candidate.score > min_score) {
     *score = best_candidate.score;
     *pose_estimate = transform::Rigid2d(
         {initial_pose_estimate.translation().x() + best_candidate.x,
          initial_pose_estimate.translation().y() + best_candidate.y},
         initial_rotation * Eigen::Rotation2Dd(best_candidate.orientation));
+
+    // Remove candidates that fall below the threshold.
+    // candidates_final.erase(
+    //     std::remove_if(
+    //         candidates_final.begin(), candidates_final.end(),
+    //         [&](const Candidate2D& candidate) {
+    //           return std::abs(candidate.x - best_candidate.x) < 0.3 &&
+    //                  std::abs(candidate.y - best_candidate.y) < 0.3 &&
+    //                  std::abs(candidate.orientation -
+    //                           best_candidate.orientation) < 10 * M_PI / 180;
+    //         }),
+    //     candidates_final.end());
+    LOG(INFO) << "best_candidate x: " << best_candidate.x
+              << " y: " << best_candidate.y
+              << " orientation: " << best_candidate.orientation
+              << " score: " << best_candidate.score;
+    LOG(INFO) << "candidates_final size: " << candidates_final.size();
+    for (const Candidate2D& candidate : candidates_final) {
+      LOG(INFO) << "x: " << candidate.x << " y: " << candidate.y
+                << " orientation: " << candidate.orientation
+                << " score: " << candidate.score
+                << " x_index: " << candidate.x_index_offset
+                << " y_index: " << candidate.y_index_offset;
+
+      auto precomputation_grid = precomputation_grid_stack_->Get(0);
+      Eigen::Array2i center_index = limits_.GetCellIndex(
+          Eigen::Vector2f(initial_pose_estimate.translation().x(), initial_pose_estimate.translation().y()));
+      Eigen::Array2i xy_index(
+          candidate.x_index_offset + center_index.x(),
+          candidate.y_index_offset + center_index.y());
+      LOG(INFO) << "grid value: "
+                << precomputation_grid.GetValue(xy_index);
+    }
+
     return true;
   }
   return false;
@@ -315,9 +351,17 @@ void FastCorrelativeScanMatcher2D::ScoreCandidates(
     const PrecomputationGrid2D& precomputation_grid,
     const std::vector<DiscreteScan2D>& discrete_scans,
     const SearchParameters& search_parameters,
-    std::vector<Candidate2D>* const candidates) const {
+    std::vector<Candidate2D>* const candidates, bool in_free) const {
   for (Candidate2D& candidate : *candidates) {
     int sum = 0;
+    if (in_free) {
+      // if (precomputation_grid.GetValue(Eigen::Array2i(
+      //         candidate.x_index_offset, candidate.y_index_offset)) ==
+      //     precomputation_grid.GetValue(Eigen::Array2i(0, 0))) {
+      //   candidate.score = 0;
+      //   continue;
+      // }
+    }
     for (const Eigen::Array2i& xy_index :
          discrete_scans[candidate.scan_index]) {
       const Eigen::Array2i proposed_xy_index(
@@ -336,9 +380,12 @@ Candidate2D FastCorrelativeScanMatcher2D::BranchAndBound(
     const std::vector<DiscreteScan2D>& discrete_scans,
     const SearchParameters& search_parameters,
     const std::vector<Candidate2D>& candidates, const int candidate_depth,
-    float min_score) const {
+    float min_score, std::vector<Candidate2D>& candidates_final) const {
   if (candidate_depth == 0) {
     // Return the best candidate.
+    for (const Candidate2D& candidate : candidates) {
+      if (candidate.score > min_score) candidates_final.push_back(candidate);
+    }
     return *candidates.begin();
   }
 
@@ -367,12 +414,12 @@ Candidate2D FastCorrelativeScanMatcher2D::BranchAndBound(
     }
     ScoreCandidates(precomputation_grid_stack_->Get(candidate_depth - 1),
                     discrete_scans, search_parameters,
-                    &higher_resolution_candidates);
+                    &higher_resolution_candidates, candidate_depth <= 1);
     best_high_resolution_candidate = std::max(
         best_high_resolution_candidate,
         BranchAndBound(discrete_scans, search_parameters,
                        higher_resolution_candidates, candidate_depth - 1,
-                       best_high_resolution_candidate.score));
+                       best_high_resolution_candidate.score, candidates_final));
   }
   return best_high_resolution_candidate;
 }

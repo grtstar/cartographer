@@ -315,11 +315,11 @@ void PoseExtrapolator::TrimOdometryData() {
     if (common::ToSeconds(odometry_data_.back().time -
                           odometry_data_.front().time) > 0.3) {
       odometry_data_.pop_front();
-      LOG(INFO) << "odometry_data_.size(): " << odometry_data_.size()
-                << ",odometry_data_.front().time: "
-                << odometry_data_.front().time
-                << ", odometry_data_.back().time: "
-                << odometry_data_.back().time;
+      // LOG(INFO) << "odometry_data_.size(): " << odometry_data_.size()
+      //           << ",odometry_data_.front().time: "
+      //           << odometry_data_.front().time
+      //           << ", odometry_data_.back().time: "
+      //           << odometry_data_.back().time;
       if (extrapolation_imu_tracker_) {
         AdvanceImuTracker(odometry_data_.back().time,
                           extrapolation_imu_tracker_.get());

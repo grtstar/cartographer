@@ -152,13 +152,14 @@ class FastCorrelativeScanMatcher2D {
   void ScoreCandidates(const PrecomputationGrid2D& precomputation_grid,
                        const std::vector<DiscreteScan2D>& discrete_scans,
                        const SearchParameters& search_parameters,
-                       std::vector<Candidate2D>* const candidates) const;
+                       std::vector<Candidate2D>* const candidates, bool in_free = false) const;
   Candidate2D BranchAndBound(const std::vector<DiscreteScan2D>& discrete_scans,
                              const SearchParameters& search_parameters,
                              const std::vector<Candidate2D>& candidates,
-                             int candidate_depth, float min_score) const;
+                             int candidate_depth, float min_score, std::vector<Candidate2D>& candidates_final) const;
 
   const proto::FastCorrelativeScanMatcherOptions2D options_;
+  const Grid2D & grid_;
   MapLimits limits_;
   std::unique_ptr<PrecomputationGridStack2D> precomputation_grid_stack_;
 };
