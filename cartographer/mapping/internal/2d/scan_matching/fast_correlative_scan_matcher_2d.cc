@@ -289,7 +289,7 @@ bool FastCorrelativeScanMatcher2D::MatchWithSearchParameters(
           candidate.x_index_offset + center_index.x(),
           candidate.y_index_offset + center_index.y());
       LOG(INFO) << "grid value: "
-                << precomputation_grid.GetValue(xy_index);
+                << grid_.GetCorrespondenceCost(xy_index);
     }
 
     return true;
