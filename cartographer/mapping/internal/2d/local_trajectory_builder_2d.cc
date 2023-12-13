@@ -347,6 +347,8 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
   sensor::RangeData range_data_in_local =
       TransformRangeData(gravity_aligned_range_data,
                          transform::Embed3D(pose_estimate_2d->cast<float>()));
+
+  // LOG(INFO)<<"1 range_data_in_local.origin: "<<range_data_in_local.origin;                        
   std::unique_ptr<InsertionResult> insertion_result = nullptr;
   if (score < 0.4)
   {
@@ -508,6 +510,30 @@ void LocalTrajectoryBuilder2D::ResetExtrapolator(
   extrapolator_->AddPose(time, pose_estimate);
   LOG(INFO) << "4-----------------------------";
 
+}
+
+void LocalTrajectoryBuilder2D::RebuildActiveSubmap(std::shared_ptr<const Submap> submap)
+{
+  active_submaps_.RebuildSubmap(std::dynamic_pointer_cast<const Submap2D>(submap));
+}
+
+bool LocalTrajectoryBuilder2D::IsWrongFrame(transform::Rigid2d pose_estimate_2d, const sensor::PointCloud & frame)
+{
+  sensor::RangeData range_data;
+  for (const auto & p : frame)
+  {
+    auto range = p.position.norm();
+    if(range >= options_.min_range() && range <= options_.max_range())
+    {
+      range_data.returns.push_back(p);
+    }
+  }
+  range_data.origin = Eigen::Vector3f(0, 0, 0);
+  sensor::RangeData range_data_in_local =
+      TransformRangeData(range_data,
+                         transform::Embed3D(pose_estimate_2d.cast<float>()));
+  // LOG(INFO)<<"1 range_data_in_local.origin: "<<range_data_in_local.origin;   
+  return active_submaps_.IsWrongFrame(range_data_in_local);
 }
 
 void LocalTrajectoryBuilder2D::InitializeExtrapolator(const common::Time time) {

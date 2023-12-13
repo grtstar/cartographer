@@ -103,6 +103,9 @@ void PoseExtrapolator::AddImuData(const sensor::ImuData& imu_data) {
 
 void PoseExtrapolator::AddOdometryData(
     const sensor::OdometryData& odometry_data) {
+  if (odometry_data.time < timed_pose_queue_.back().time) {
+    return;
+  }
   CHECK(timed_pose_queue_.empty() ||
         odometry_data.time >= timed_pose_queue_.back().time);
   if (reference_odometry_.time == common::Time::min()) {
@@ -259,15 +262,15 @@ Eigen::Quaterniond PoseExtrapolator::EstimateGravityOrientation(
   AdvanceImuTracker(time, &imu_tracker);
   return imu_tracker.orientation();
 #else
-  if(odometry_data_.empty()) {
+  if (odometry_data_.empty()) {
     return Eigen::Quaterniond::Identity();
   }
   auto matrix = odometry_data_.back().pose.rotation().toRotationMatrix();
   Eigen::Vector3d v(matrix(2, 0), matrix(2, 1), matrix(2, 2));
   Eigen::AngleAxisd rotation_vector(0, v);
   return Eigen::Quaterniond(rotation_vector);
-  //return odometry_data_.back().pose.rotation();
-  //return Eigen::Quaterniond::Identity();
+  // return odometry_data_.back().pose.rotation();
+  // return Eigen::Quaterniond::Identity();
 #endif
 }
 

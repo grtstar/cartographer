@@ -161,6 +161,8 @@ class PoseGraph2D : public PoseGraph {
 
   // add by grt
   const proto::PoseGraphOptions GetOptions() const { return options_; }
+  std::shared_ptr<const Submap> GetSubmap(SubmapId id);
+
   void UpdateSubmap(const int trajectory_id,
     const std::vector<std::shared_ptr<const Submap2D>>& insertion_submaps);
 

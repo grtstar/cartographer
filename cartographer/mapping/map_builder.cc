@@ -140,14 +140,14 @@ int MapBuilder::RebuildTrajectoryBuilder(
         transform::ToRigid3(initial_trajectory_pose.relative_pose()),
         common::FromUniversal(initial_trajectory_pose.timestamp()));
   }
-  proto::TrajectoryBuilderOptionsWithSensorIds options_with_sensor_ids_proto;
-  for (const auto& sensor_id : expected_sensor_ids) {
-    *options_with_sensor_ids_proto.add_sensor_id() = ToProto(sensor_id);
-  }
-  *options_with_sensor_ids_proto.mutable_trajectory_builder_options() =
-      trajectory_options;
-  all_trajectory_builder_options_.push_back(options_with_sensor_ids_proto);
   CHECK_EQ(trajectory_builders_.size(), all_trajectory_builder_options_.size());
+
+  // rebuild active submap
+  auto trajectory_builder = trajectory_builders_.at(trajectory_id).get();
+  
+  PoseGraph2D* pose_graph2d = (PoseGraph2D*)pose_graph_.get();
+  // LOG(WARNING) << "pose_graph2d->GetSubmap(SubmapId(trajectory_id, 0)): "<<pose_graph2d->GetSubmap(SubmapId(trajectory_id, 0));
+  trajectory_builder->RebuildActiveSubmap(pose_graph2d->GetSubmap(SubmapId(trajectory_id, 0)));
   return trajectory_id;
 }
 

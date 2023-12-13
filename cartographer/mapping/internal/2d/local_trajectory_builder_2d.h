@@ -73,8 +73,11 @@ class LocalTrajectoryBuilder2D {
       const sensor::TimedPointCloudData& range_data);
   void AddImuData(const sensor::ImuData& imu_data);
   void AddOdometryData(const sensor::OdometryData& odometry_data);
+
   void SetGlobalInitialPose(transform::Rigid3d & initial_pose);
   void ResetExtrapolator(common::Time time, transform::Rigid3d & pose_estimate);
+  void RebuildActiveSubmap(std::shared_ptr<const Submap> submap);
+  bool IsWrongFrame(transform::Rigid2d pose_estimate_2d, const sensor::PointCloud & frame);
 
   static void RegisterMetrics(metrics::FamilyFactory* family_factory);
 

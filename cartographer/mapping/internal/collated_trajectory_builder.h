@@ -102,6 +102,16 @@ class CollatedTrajectoryBuilder : public TrajectoryBuilderInterface {
     wrapped_trajectory_builder_->ResetExtrapolator(time, pose_estimate);
   }
 
+  void RebuildActiveSubmap(std::shared_ptr<const Submap> submap) override
+  {
+    wrapped_trajectory_builder_->RebuildActiveSubmap(submap);
+  } 
+
+  bool IsWrongFrame(transform::Rigid2d pose_estimate_2d, const sensor::PointCloud & frame) override
+  {
+    return wrapped_trajectory_builder_->IsWrongFrame(pose_estimate_2d, frame);
+  }
+
  private:
   void AddData(std::unique_ptr<sensor::Data> data);
 

@@ -199,18 +199,20 @@ FastCorrelativeScanMatcher2D::~FastCorrelativeScanMatcher2D() {}
 bool FastCorrelativeScanMatcher2D::Match(
     const transform::Rigid2d& initial_pose_estimate,
     const sensor::PointCloud& point_cloud, const float min_score, float* score,
-    transform::Rigid2d* pose_estimate) const {
+    transform::Rigid2d* pose_estimate,
+    std::vector<Candidate2D>* candidates_final) const {
   const SearchParameters search_parameters(options_.linear_search_window(),
                                            options_.angular_search_window(),
                                            point_cloud, limits_.resolution());
+
   return MatchWithSearchParameters(search_parameters, initial_pose_estimate,
                                    point_cloud, min_score, score,
-                                   pose_estimate);
+                                   pose_estimate, candidates_final);
 }
 
 bool FastCorrelativeScanMatcher2D::MatchFullSubmap(
     const sensor::PointCloud& point_cloud, float min_score, float* score,
-    transform::Rigid2d* pose_estimate) const {
+    transform::Rigid2d* pose_estimate, std::vector<Candidate2D>* candidates_final) const {
   // Compute a search window around the center of the submap that includes it
   // fully.
   const SearchParameters search_parameters(
@@ -222,14 +224,15 @@ bool FastCorrelativeScanMatcher2D::MatchFullSubmap(
                           Eigen::Vector2d(limits_.cell_limits().num_y_cells,
                                           limits_.cell_limits().num_x_cells));
   return MatchWithSearchParameters(search_parameters, center, point_cloud,
-                                   min_score, score, pose_estimate);
+                                   min_score, score, pose_estimate, candidates_final);
 }
 
 bool FastCorrelativeScanMatcher2D::MatchWithSearchParameters(
     SearchParameters search_parameters,
     const transform::Rigid2d& initial_pose_estimate,
     const sensor::PointCloud& point_cloud, float min_score, float* score,
-    transform::Rigid2d* pose_estimate) const {
+    transform::Rigid2d* pose_estimate, 
+    std::vector<Candidate2D>* candidates_final) const {
   CHECK(score != nullptr);
   CHECK(pose_estimate != nullptr);
 
@@ -248,18 +251,22 @@ bool FastCorrelativeScanMatcher2D::MatchWithSearchParameters(
 
   const std::vector<Candidate2D> lowest_resolution_candidates =
       ComputeLowestResolutionCandidates(discrete_scans, search_parameters);
-  std::vector<Candidate2D> candidates_final;
   Eigen::Array2i center_index = limits_.GetCellIndex(
       Eigen::Vector2f(initial_pose_estimate.translation().x(),
                       initial_pose_estimate.translation().y()));
+  std::vector<Candidate2D> candidates_final_temp;
+  std::vector<Candidate2D>  & candidates_result = candidates_final != nullptr ? *candidates_final  : candidates_final_temp;
   const Candidate2D best_candidate = BranchAndBound(
       center_index, discrete_scans, search_parameters,
       lowest_resolution_candidates, precomputation_grid_stack_->max_depth(),
-      min_score, candidates_final);
+      min_score, candidates_result);
   LOG(INFO) << "best_candidate x: " << best_candidate.x
-          << " y: " << best_candidate.y
-          << " orientation: " << best_candidate.orientation
-          << " score: " << best_candidate.score;
+            << " y: " << best_candidate.y
+            << " orientation: " << best_candidate.orientation
+            << " score: " << best_candidate.score << " grid value: "
+            << grid_.GetCorrespondenceCost(Eigen::Array2i(
+                   best_candidate.x_index_offset + center_index.x(),
+                   best_candidate.y_index_offset + center_index.y()));
   if (best_candidate.score > min_score) {
     *score = best_candidate.score;
     *pose_estimate = transform::Rigid2d(
@@ -268,33 +275,30 @@ bool FastCorrelativeScanMatcher2D::MatchWithSearchParameters(
         initial_rotation * Eigen::Rotation2Dd(best_candidate.orientation));
 
     // Remove candidates that fall below the threshold.
-    candidates_final.erase(
-        std::remove_if(
-            candidates_final.begin(), candidates_final.end(),
-            [&](const Candidate2D& candidate) {
-              return std::abs(candidate.x - best_candidate.x) < 0.3 &&
-                     std::abs(candidate.y - best_candidate.y) < 0.3 &&
-                     std::abs(candidate.orientation -
-                              best_candidate.orientation) < 10 * M_PI / 180;
-            }),
-        candidates_final.end());
+    // candidates_final.erase(
+    //     std::remove_if(
+    //         candidates_final.begin(), candidates_final.end(),
+    //         [&](const Candidate2D& candidate) {
+    //           return std::abs(candidate.x - best_candidate.x) < 0.3 &&
+    //                  std::abs(candidate.y - best_candidate.y) < 0.3 &&
+    //                  std::abs(candidate.orientation -
+    //                           best_candidate.orientation) < 10 * M_PI / 180;
+    //         }),
+    //     candidates_final.end());
 
-    LOG(INFO) << "candidates_final size: " << candidates_final.size();
-    for (const Candidate2D& candidate : candidates_final) {
+    LOG(INFO) << "candidates_result size: " << candidates_result.size();
+    for (const Candidate2D& candidate : candidates_result) {
+      Eigen::Array2i xy_index(candidate.x_index_offset + center_index.x(),
+                              candidate.y_index_offset + center_index.y());
       LOG(INFO) << "x: " << candidate.x << " y: " << candidate.y
                 << " orientation: " << candidate.orientation
                 << " score: " << candidate.score
                 << " x_index: " << candidate.x_index_offset
-                << " y_index: " << candidate.y_index_offset;
-
-      auto precomputation_grid = precomputation_grid_stack_->Get(0);
-
-      Eigen::Array2i xy_index(candidate.x_index_offset + center_index.x(),
-                              candidate.y_index_offset + center_index.y());
-      LOG(INFO) << "grid value: " << grid_.GetCorrespondenceCost(xy_index);
+                << " y_index: " << candidate.y_index_offset
+                << " grid value: " << grid_.GetCorrespondenceCost(xy_index)
+                << " is known: " << grid_.IsKnown(xy_index);
     }
-    LOG(INFO) << "grid0 value: "
-              << grid_.GetCorrespondenceCost(Eigen::Array2i(0, 0));
+
     return true;
   }
   return false;
@@ -363,6 +367,13 @@ void FastCorrelativeScanMatcher2D::ScoreCandidates(
       if (grid_.IsKnown(Eigen::Array2i(
               candidate.x_index_offset + initial_index.x(),
               candidate.y_index_offset + initial_index.y())) == 0) {
+        candidate.score = 0;
+        continue;
+      }
+      else if (grid_.GetCorrespondenceCost(Eigen::Array2i(
+              candidate.x_index_offset + initial_index.x(),
+              candidate.y_index_offset + initial_index.y())) < 0.7)
+      {
         candidate.score = 0;
         continue;
       }

@@ -193,7 +193,7 @@ common::Time OrderedMultiQueue::GetCommonStartTime(const int trajectory_id) {
       if (entry.first.trajectory_id == trajectory_id) {
         if(entry.second.queue.Peek<Data>() == nullptr)
         {
-          LOG(INFO) << entry.first << " is empty";
+          // LOG(INFO) << entry.first << " is empty";
           return common::Time::min();
         }
       }

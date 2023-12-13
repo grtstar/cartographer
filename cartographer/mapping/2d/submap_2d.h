@@ -96,10 +96,10 @@ class ActiveSubmaps2D {
       const sensor::RangeData& range_data);
   std::vector<std::shared_ptr<const Submap2D>> InsertRangeData(
       const sensor::RangeData& range_data, const proto::InLocationInserterOptions& options);
+  std::vector<std::shared_ptr<const Submap2D>> submaps() const;
 
   bool IsWrongFrame(const sensor::RangeData& range_data);
-
-  std::vector<std::shared_ptr<const Submap2D>> submaps() const;
+  void RebuildSubmap(std::shared_ptr<const Submap2D> submap);
 
  private:
   std::unique_ptr<RangeDataInserterInterface> CreateRangeDataInserter();

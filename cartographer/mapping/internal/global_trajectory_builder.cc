@@ -147,6 +147,20 @@ class GlobalTrajectoryBuilder : public mapping::TrajectoryBuilderInterface {
     // pose_graph_->SetGlobalInitialPose(initial_pose);
   }
 
+  void RebuildActiveSubmap(std::shared_ptr<const Submap> submap) override{
+    if (local_trajectory_builder_) {
+      local_trajectory_builder_->RebuildActiveSubmap(submap);
+    }
+  }
+
+  bool IsWrongFrame(transform::Rigid2d pose_estimate_2d, const sensor::PointCloud & frame)
+  {
+    if (local_trajectory_builder_) {
+      return local_trajectory_builder_->IsWrongFrame(pose_estimate_2d, frame);
+    }
+    return false;
+  }
+
   void ResetExtrapolator(common::Time time, transform::Rigid3d& pose_estimate) override {
     if (local_trajectory_builder_) {
       local_trajectory_builder_->ResetExtrapolator(time, pose_estimate);

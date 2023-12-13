@@ -154,6 +154,9 @@ NodeId PoseGraph2D::AppendNode(
 void PoseGraph2D::UpdateSubmap(
     const int trajectory_id,
     const std::vector<std::shared_ptr<const Submap2D>>& insertion_submaps) {
+  // LOG(WARNING) << "data_.submap_data.SizeOfTrajectoryOrZero(trajectory_id): "<<data_.submap_data.SizeOfTrajectoryOrZero(trajectory_id);
+  // LOG(WARNING) << "std::prev(data_.submap_data.EndOfTrajectory(trajectory_id))->data.submap: "<<std::prev(data_.submap_data.EndOfTrajectory(trajectory_id))->data.submap;
+  // LOG(WARNING) << "insertion_submaps.back(): "<<insertion_submaps.back();
   if (data_.submap_data.SizeOfTrajectoryOrZero(trajectory_id) == 0 ||
       std::prev(data_.submap_data.EndOfTrajectory(trajectory_id))
               ->data.submap != insertion_submaps.back()) {
@@ -165,6 +168,11 @@ void PoseGraph2D::UpdateSubmap(
     LOG(INFO) << "Inserted submap " << submap_id << ".";
     kActiveSubmapsMetric->Increment();
   }
+}
+
+std::shared_ptr<const Submap> PoseGraph2D::GetSubmap(SubmapId id)
+{
+  return (data_.submap_data.at(id).submap);
 }
 
 NodeId PoseGraph2D::AddNode(

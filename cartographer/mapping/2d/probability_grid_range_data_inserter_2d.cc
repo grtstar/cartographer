@@ -164,11 +164,17 @@ int TryCastRays(const sensor::RangeData& range_data,
   // Compute and add the end points.
   std::vector<Eigen::Array2i> ends;
   ends.reserve(range_data.returns.size());
-
+  auto origin = range_data.origin.head<2>();
   for (const sensor::RangefinderPoint& hit : range_data.returns) {
+    auto hit_pos = hit.position.head<2>();
+    if (std::abs(origin[0] - hit_pos[0]) > 5.0 ||
+        std::abs(origin[1] - hit_pos[1]) > 5.0) {
+      continue;
+    }
+
     bool is_new_hit = true;
     auto near = GetEndNear(
-        begin, superscaled_limits.GetCellIndex(hit.position.head<2>()), 2);
+        begin, superscaled_limits.GetCellIndex(hit.position.head<2>()), 3);
     for (auto& point : near) {
       if (probability_grid->GetProbability(point / kSubpixelScale) > 0.5) {
         is_new_hit = false;
@@ -191,7 +197,7 @@ int TryCastRays(const sensor::RangeData& range_data,
     std::vector<Eigen::Array2i> ray =
         RayToPixelMask(begin, end, kSubpixelScale);
     for (const Eigen::Array2i& cell_index : ray) {
-      if (probability_grid->GetProbability(cell_index) > 0.5) {
+      if (probability_grid->GetProbability(cell_index) > 0.7) {
         change++;
       }
     }

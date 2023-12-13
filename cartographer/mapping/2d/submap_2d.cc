@@ -153,13 +153,13 @@ void Submap2D::InsertRangeData(
   set_num_range_data(num_range_data() + 1);
 }
 
-int Submap2D::GetChangedCountByInsert(const sensor::RangeData& range_data,
-                                      const RangeDataInserterInterface* range_data_inserter) {  
+int Submap2D::GetChangedCountByInsert(
+    const sensor::RangeData& range_data,
+    const RangeDataInserterInterface* range_data_inserter) {
   CHECK(grid_);
   CHECK(!insertion_finished());
   return range_data_inserter->GetChangedCountByInsert(range_data, grid_.get());
 }
-
 
 void Submap2D::Finish() {
   CHECK(grid_);
@@ -192,9 +192,11 @@ std::vector<std::shared_ptr<const Submap2D>> ActiveSubmaps2D::InsertRangeData(
 }
 
 std::vector<std::shared_ptr<const Submap2D>> ActiveSubmaps2D::InsertRangeData(
-    const sensor::RangeData& range_data, const proto::InLocationInserterOptions& options) {
+    const sensor::RangeData& range_data,
+    const proto::InLocationInserterOptions& options) {
   if (submaps_.empty() ||
-      (options_.num_range_data() > 0 && submaps_.back()->num_range_data() == options_.num_range_data())) {
+      (options_.num_range_data() > 0 &&
+       submaps_.back()->num_range_data() == options_.num_range_data())) {
     AddSubmap(range_data.origin.head<2>());
   }
   for (auto& submap : submaps_) {
@@ -206,19 +208,24 @@ std::vector<std::shared_ptr<const Submap2D>> ActiveSubmaps2D::InsertRangeData(
   return submaps();
 }
 
-bool ActiveSubmaps2D::IsWrongFrame(const sensor::RangeData& range_data)
-{
-  if (submaps_.empty())
-  {
+bool ActiveSubmaps2D::IsWrongFrame(const sensor::RangeData& range_data) {
+  if (submaps_.empty()) {
     return false;
   }
-  if(options_.grid_options_2d().grid_type() == proto::GridOptions2D::PROBABILITY_GRID)
-  {
-    int changed = submaps_.front()->GetChangedCountByInsert(range_data, range_data_inserter_.get());
-    LOG(INFO) << "changed: " << changed << " range_data.returns.size(): " << range_data.returns.size();
-    return (size_t)changed > range_data.returns.size();
+  if (options_.grid_options_2d().grid_type() ==
+      proto::GridOptions2D::PROBABILITY_GRID) {
+    int changed = submaps_.front()->GetChangedCountByInsert(
+        range_data, range_data_inserter_.get());
+    LOG(INFO) << "changed: " << changed
+              << " range_data.returns.size(): " << range_data.returns.size();
+    return (size_t)changed > range_data.returns.size() + 50;
   }
   return false;
+}
+
+void ActiveSubmaps2D::RebuildSubmap(std::shared_ptr<const Submap2D> submap) {
+  CHECK(submaps_.empty());
+  submaps_.push_back(std::const_pointer_cast<Submap2D>(submap));
 }
 
 std::unique_ptr<RangeDataInserterInterface>
