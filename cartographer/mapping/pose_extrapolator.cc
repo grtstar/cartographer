@@ -204,6 +204,10 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
 #endif
 }
 
+Eigen::Vector3d PoseExtrapolator::AngularVelocityFromOdometry()
+{
+  return angular_velocity_from_odometry_;
+}
 transform::Rigid3d PoseExtrapolator::ExtrapolatePoseLog(
     const common::Time time) {
   const TimedPose& newest_timed_pose = timed_pose_queue_.back();
@@ -265,10 +269,19 @@ Eigen::Quaterniond PoseExtrapolator::EstimateGravityOrientation(
   if (odometry_data_.empty()) {
     return Eigen::Quaterniond::Identity();
   }
-  auto matrix = odometry_data_.back().pose.rotation().toRotationMatrix();
-  Eigen::Vector3d v(matrix(2, 0), matrix(2, 1), matrix(2, 2));
-  Eigen::AngleAxisd rotation_vector(0, v);
-  return Eigen::Quaterniond(rotation_vector);
+  // auto matrix = odometry_data_.back().pose.rotation().toRotationMatrix();
+  Eigen::Vector3d v = odometry_data_.back().pose.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
+  // LOG(INFO)<< "v: " <<  common::RadToDeg(v.x()) << "," << common::RadToDeg(v.y()) << "," << common::RadToDeg(v.z());
+  const Eigen::AngleAxisd yaw_angle(-v.z(), Eigen::Vector3d::UnitZ());
+  auto q = odometry_data_.back().pose.rotation() * yaw_angle;
+  // Eigen::Vector3d v2 = q.toRotationMatrix().eulerAngles(0, 1, 2);
+  // LOG(INFO)<< "v2: " <<  common::RadToDeg(v2.x()) << "," << common::RadToDeg(v2.y()) << "," << common::RadToDeg(v2.z());
+  // LOG(INFO)<< "q: " << q.w() << "," << q.x() << "," << q.y() << "," << q.z();
+  // auto m = q.toRotationMatrix();
+  // LOG(INFO)<< "m: " << m(0, 0) << "," << m(0, 1) << "," << m(0, 2);
+  // LOG(INFO)<< "m: " << m(1, 0) << "," << m(1, 1) << "," << m(1, 2);
+  // LOG(INFO)<< "m: " << m(2, 0) << "," << m(2, 1) << "," << m(2, 2);
+  return q;
   // return odometry_data_.back().pose.rotation();
   // return Eigen::Quaterniond::Identity();
 #endif

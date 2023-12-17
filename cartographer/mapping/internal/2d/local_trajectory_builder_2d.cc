@@ -49,6 +49,7 @@ LocalTrajectoryBuilder2D::LocalTrajectoryBuilder2D(
         auto opt = options_.real_time_correlative_scan_matcher_options();
         double old_angular_search_window = opt.angular_search_window();
         opt.set_angular_search_window(old_angular_search_window * 2);
+        opt.set_linear_search_window(opt.linear_search_window() * 3);
         real_time_rotation_rescan_matcher_ = std::make_shared<scan_matching::RealTimeCorrelativeScanMatcher2D>(opt);
 
         opt.set_linear_search_window(opt.linear_search_window() * 4);
@@ -100,30 +101,19 @@ std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
       double rotation_rematch_score = real_time_rotation_rescan_matcher_->Match(
         initial_ceres_pose, filtered_gravity_aligned_point_cloud,
         *matching_submap->grid(), &rotate_remach_pose);
-      // double rotation_rematch_score = score;
 
-      transform::Rigid2d translation_rematch_pose = initial_ceres_pose;
-      double translation_rematch_score = real_time_translation_rescan_matcher_->Match(
-        initial_ceres_pose, filtered_gravity_aligned_point_cloud,
-        *matching_submap->grid(), &translation_rematch_pose);
-      if(rotation_rematch_score > 0.6 || translation_rematch_score > 0.6)
+      // transform::Rigid2d translation_rematch_pose = initial_ceres_pose;
+      // double translation_rematch_score = real_time_translation_rescan_matcher_->Match(
+      //   initial_ceres_pose, filtered_gravity_aligned_point_cloud,
+      //   *matching_submap->grid(), &translation_rematch_pose);
+      if(rotation_rematch_score > 0.7)
       {
-        if(rotation_rematch_score > translation_rematch_score)
-        {
           match_score = rotation_rematch_score;
           initial_ceres_pose = rotate_remach_pose;
           LOG(WARNING) << "pose_prediction: " << pose_prediction << " rotate_remach_pose: " << rotate_remach_pose;
           pose_prediction2 = rotate_remach_pose;
-        }
-        else
-        {
-          match_score = translation_rematch_score;
-          initial_ceres_pose = translation_rematch_pose;
-          LOG(WARNING) << "pose_prediction: " << pose_prediction << " translation_rematch_pose: " << translation_rematch_pose;
-          pose_prediction2 = translation_rematch_pose;
-        }
       }
-      LOG(WARNING) << "online_correlative_scan_matching score low :" << score << " rotate rematch score:" << rotation_rematch_score << " translation rematch score:" << translation_rematch_score;
+      LOG(WARNING) << "online_correlative_scan_matching score low :" << score << " rematch score:" << rotation_rematch_score;
     }
   }
 
@@ -280,9 +270,9 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
 
   auto time_start = std::chrono::steady_clock::now();
   // Computes a gravity aligned pose prediction.
-  const transform::Rigid3d non_gravity_aligned_pose_prediction =
+  transform::Rigid3d non_gravity_aligned_pose_prediction =
       extrapolator_->ExtrapolatePoseLog(time);
-  const transform::Rigid2d pose_prediction = transform::Project2D(
+  transform::Rigid2d pose_prediction = transform::Project2D(
       non_gravity_aligned_pose_prediction * gravity_alignment.inverse());
 
   const sensor::PointCloud& filtered_gravity_aligned_point_cloud =
@@ -295,6 +285,49 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
   // LOG(INFO) << "ScanMatch Pose raw: " << non_gravity_aligned_pose_prediction;
   // LOG(INFO) << "ScanMatch Pose in: " << pose_prediction << "gravity_alignment: " << gravity_alignment; 
   // local map frame <- gravity-aligned frame
+
+  if(fit_vector.z() != 0)
+  {
+    const double errDeg = 10.0;
+    double a0 = common::NormalizeAngleDifference(-fit_vector.z());
+    double a1 = common::NormalizeAngleDifference(a0 + M_PI_2);
+    double a2 = common::NormalizeAngleDifference(a0 + M_PI);
+    double a3 = common::NormalizeAngleDifference(a0 + M_PI + M_PI_2);
+    LOG(INFO) << "robot yaw maybe: " << common::RadToDeg(a0) << "°, " << common::RadToDeg(a1) << "°, " << common::RadToDeg(a2) << "°, " << common::RadToDeg(a3) << "°";
+    Eigen::Vector3d euler = non_gravity_aligned_pose_prediction.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
+    LOG(INFO) << "euler: " << common::RadToDeg(euler.x()) << "°," << common::RadToDeg(euler.y()) << "°," << common::RadToDeg(euler.z()) << "°";
+    LOG(INFO) << "robot match yaw: " << common::RadToDeg(pose_prediction.rotation().angle()) << "°, " << common::RadToDeg(euler.z()) << "°";
+    if(std::abs(common::NormalizeAngleDifference(a0-euler.z())) < common::DegToRad(errDeg))
+    {
+      LOG(INFO)<< "robot a0: " << common::RadToDeg(a0) << "°";
+      const Eigen::AngleAxisd yaw_angle(a0-euler.z(), Eigen::Vector3d::UnitZ());
+      non_gravity_aligned_pose_prediction = transform::Rigid3d(non_gravity_aligned_pose_prediction.translation(), non_gravity_aligned_pose_prediction.rotation() * yaw_angle);
+    }
+    else if(std::abs(common::NormalizeAngleDifference(a1-euler.z())) < common::DegToRad(errDeg))
+    {
+      LOG(INFO)<< "robot a1: " << common::RadToDeg(a1) << "°";
+      const Eigen::AngleAxisd yaw_angle(a1-euler.z(), Eigen::Vector3d::UnitZ());
+      non_gravity_aligned_pose_prediction = transform::Rigid3d(non_gravity_aligned_pose_prediction.translation(), non_gravity_aligned_pose_prediction.rotation() * yaw_angle);
+    }
+    else if(std::abs(common::NormalizeAngleDifference(a2-euler.z())) < common::DegToRad(errDeg))
+    {
+      LOG(INFO)<< "robot a2: " << common::RadToDeg(a2) << "°";
+      const Eigen::AngleAxisd yaw_angle(a2-euler.z(), Eigen::Vector3d::UnitZ());
+      non_gravity_aligned_pose_prediction = transform::Rigid3d(non_gravity_aligned_pose_prediction.translation(), non_gravity_aligned_pose_prediction.rotation() * yaw_angle);
+    }
+    else if(std::abs(common::NormalizeAngleDifference(a3-euler.z())) < common::DegToRad(errDeg))
+    {
+      LOG(INFO)<< "robot a3: " << common::RadToDeg(a3) << "°";
+      const Eigen::AngleAxisd yaw_angle(a3-euler.z(), Eigen::Vector3d::UnitZ());
+      non_gravity_aligned_pose_prediction = transform::Rigid3d(non_gravity_aligned_pose_prediction.translation(), non_gravity_aligned_pose_prediction.rotation() * yaw_angle);
+      // non_gravity_aligned_pose_prediction = transform::Rigid3d(non_gravity_aligned_pose_prediction.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a3));
+    }
+    euler = non_gravity_aligned_pose_prediction.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
+    pose_prediction = transform::Project2D(
+      non_gravity_aligned_pose_prediction * gravity_alignment.inverse());  
+    LOG(INFO) << "new euler: " << common::RadToDeg(euler.x()) << "°," << common::RadToDeg(euler.y()) << "°," << common::RadToDeg(euler.z()) << "°";
+  }  
+  
   double score = 0;
   std::unique_ptr<transform::Rigid2d> pose_estimate_2d = ScanMatch(
       time, pose_prediction, filtered_gravity_aligned_point_cloud, score);
@@ -306,39 +339,43 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
   transform::Rigid3d pose_estimate =
       transform::Embed3D(*pose_estimate_2d) * gravity_alignment;
   
-  if(fit_vector.z() != 0)
-  {
-    double a0 = common::NormalizeAngleDifference(-fit_vector.z());
-    double a1 = common::NormalizeAngleDifference(a0 + M_PI_2);
-    double a2 = common::NormalizeAngleDifference(a0 + M_PI);
-    double a3 = common::NormalizeAngleDifference(a0 + M_PI + M_PI_2);
-    LOG(INFO) << "robot yaw maybe: " << common::RadToDeg(a0) << "°, " << common::RadToDeg(a1) << "°, " << common::RadToDeg(a2) << "°, " << common::RadToDeg(a3) << "°";
-    Eigen::Vector3d euler = pose_estimate.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
-    LOG(INFO) << "euler: " << common::RadToDeg(euler.x()) << "°," << common::RadToDeg(euler.y()) << "°," << common::RadToDeg(euler.z()) << "°";
-    LOG(INFO) << "robot match yaw: " << common::RadToDeg(pose_estimate_2d->rotation().angle()) << "°, " << common::RadToDeg(euler.z()) << "°";
-    if(std::abs(common::NormalizeAngleDifference(a0-euler.z())) < common::DegToRad(5))
-    {
-      LOG(INFO)<< "robot a0: " << common::RadToDeg(a0) << "°";
-      pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a0));
-    }
-    else if(std::abs(common::NormalizeAngleDifference(a1-euler.z())) < common::DegToRad(5))
-    {
-      LOG(INFO)<< "robot a1: " << common::RadToDeg(a1) << "°";
-      pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a1));
-    }
-    else if(std::abs(common::NormalizeAngleDifference(a2-euler.z())) < common::DegToRad(5))
-    {
-      LOG(INFO)<< "robot a2: " << common::RadToDeg(a2) << "°";
-      pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a2));
-    }
-    else if(std::abs(common::NormalizeAngleDifference(a3-euler.z())) < common::DegToRad(5))
-    {
-      LOG(INFO)<< "robot a3: " << common::RadToDeg(a3) << "°";
-      pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a3));
-    }
-    euler = pose_estimate.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
-    LOG(INFO) << "new euler: " << common::RadToDeg(euler.x()) << "°," << common::RadToDeg(euler.y()) << "°," << common::RadToDeg(euler.z()) << "°";
-  }
+  // if(fit_vector.z() != 0)
+  // {
+  //   const double errDeg = 10.0;
+  //   double a0 = common::NormalizeAngleDifference(-fit_vector.z());
+  //   double a1 = common::NormalizeAngleDifference(a0 + M_PI_2);
+  //   double a2 = common::NormalizeAngleDifference(a0 + M_PI);
+  //   double a3 = common::NormalizeAngleDifference(a0 + M_PI + M_PI_2);
+  //   LOG(INFO) << "robot yaw maybe: " << common::RadToDeg(a0) << "°, " << common::RadToDeg(a1) << "°, " << common::RadToDeg(a2) << "°, " << common::RadToDeg(a3) << "°";
+  //   Eigen::Vector3d euler = pose_estimate.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
+  //   LOG(INFO) << "euler: " << common::RadToDeg(euler.x()) << "°," << common::RadToDeg(euler.y()) << "°," << common::RadToDeg(euler.z()) << "°";
+  //   LOG(INFO) << "robot match yaw: " << common::RadToDeg(pose_estimate_2d->rotation().angle()) << "°, " << common::RadToDeg(euler.z()) << "°";
+  //   if(std::abs(common::NormalizeAngleDifference(a0-euler.z())) < common::DegToRad(errDeg))
+  //   {
+  //     LOG(INFO)<< "robot a0: " << common::RadToDeg(a0) << "°";
+  //     pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a0));
+  //   }
+  //   else if(std::abs(common::NormalizeAngleDifference(a1-euler.z())) < common::DegToRad(errDeg))
+  //   {
+  //     LOG(INFO)<< "robot a1: " << common::RadToDeg(a1) << "°";
+  //     pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a1));
+  //   }
+  //   else if(std::abs(common::NormalizeAngleDifference(a2-euler.z())) < common::DegToRad(errDeg))
+  //   {
+  //     LOG(INFO)<< "robot a2: " << common::RadToDeg(a2) << "°";
+  //     pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a2));
+  //   }
+  //   else if(std::abs(common::NormalizeAngleDifference(a3-euler.z())) < common::DegToRad(errDeg))
+  //   {
+  //     LOG(INFO)<< "robot a3: " << common::RadToDeg(a3) << "°";
+  //     pose_estimate = transform::Rigid3d(pose_estimate.translation(), transform::RollPitchYaw(euler.x(), euler.y(), a3));
+  //   }
+  //   euler = pose_estimate.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
+  //   pose_estimate_2d->Rotation(euler.z());  // todo
+  //   // *pose_estimate_2d = transform::Project2D(pose_estimate * gravity_alignment.inverse())
+      
+  //   LOG(INFO) << "new euler: " << common::RadToDeg(euler.x()) << "°," << common::RadToDeg(euler.y()) << "°," << common::RadToDeg(euler.z()) << "°";
+  // }
 
   if (score > 0) {
      //LOG(INFO) << "ScanMatch Pose in: " << pose_prediction  << "("<<pose_prediction.normalized_angle() * 180 / 3.1415 <<")"<<"Score: " << score;
@@ -348,9 +385,8 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
       TransformRangeData(gravity_aligned_range_data,
                          transform::Embed3D(pose_estimate_2d->cast<float>()));
 
-  // LOG(INFO)<<"1 range_data_in_local.origin: "<<range_data_in_local.origin;                        
   std::unique_ptr<InsertionResult> insertion_result = nullptr;
-  if (score < 0.4)
+  if (score < 0.5)
   {
     if(!active_submaps_.submaps().empty() && active_submaps_.submaps().front()->num_range_data() > 10)
     {
@@ -363,6 +399,10 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
       if(active_submaps_.IsWrongFrame(range_data_in_local))
       {
         LOG(ERROR)<< "It is wrong frame, donnot insert!!! Score: " << score;
+      }
+      else if(extrapolator_->AngularVelocityFromOdometry().z() > common::DegToRad(45))
+      {
+        LOG(WARNING)<< "Donnot insert, angular velocity is high: "<<common::RadToDeg(extrapolator_->AngularVelocityFromOdometry().z());
       }
       else
       {
@@ -377,10 +417,14 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
       // LOG(INFO) << "ScanMatch Score: " << score << " insert threshold: " << in_location_inserter_.insert_point_threshold();
       if(active_submaps_.IsWrongFrame(range_data_in_local))
       {
-        LOG(ERROR)<< "It is wrong frame, donnot insert! Score: " << score;
+        LOG(WARNING)<< "It is wrong frame, donnot insert! Score: " << score;
       }
       // else
+      if(extrapolator_->AngularVelocityFromOdometry().z() > common::DegToRad(45))
       {
+        LOG(WARNING)<< "Donnot insert, angular velocity is high: "<<common::RadToDeg(extrapolator_->AngularVelocityFromOdometry().z());
+      }
+      else{
         insertion_result = InsertIntoSubmap(
           time, range_data_in_local, filtered_gravity_aligned_point_cloud,
           pose_estimate, gravity_alignment.rotation());
@@ -389,9 +433,15 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
   else if(score < in_location_inserter_.donnot_insert_threshold())
   {
       // LOG(INFO) << "ScanMatch Score: " << score << " donnot_insert_threshold: " << in_location_inserter_.donnot_insert_threshold();
-      insertion_result = InsertIntoSubmap(
+      if(extrapolator_->AngularVelocityFromOdometry().z() > common::DegToRad(45))
+      {
+        LOG(WARNING)<< "Donnot insert, angular velocity is high: "<<common::RadToDeg(extrapolator_->AngularVelocityFromOdometry().z());
+      }
+      else{
+        insertion_result = InsertIntoSubmap(
           time, range_data_in_local, filtered_gravity_aligned_point_cloud,
           pose_estimate, gravity_alignment.rotation(), in_location_inserter_);
+      }
   }
 
   extrapolator_->AddPose(time, pose_estimate);

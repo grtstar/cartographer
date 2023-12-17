@@ -55,6 +55,8 @@ class PoseExtrapolator : public PoseExtrapolatorInterface {
   void AddOdometryData(const sensor::OdometryData& odometry_data) override;
   transform::Rigid3d ExtrapolatePose(common::Time time) override;
   transform::Rigid3d ExtrapolatePoseLog(common::Time time);
+  Eigen::Vector3d AngularVelocityFromOdometry();
+  
 
   ExtrapolationResult ExtrapolatePosesWithGravity(
       const std::vector<common::Time>& times) override;
