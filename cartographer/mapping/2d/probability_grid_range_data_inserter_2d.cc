@@ -185,7 +185,7 @@ int TryCastRays(const sensor::RangeData& range_data,
     if (is_new_hit) {
       ends.push_back(superscaled_limits.GetCellIndex(hit.position.head<2>()));
       if (probability_grid->GetProbability(ends.back() / kSubpixelScale) != 0) {
-        change++;
+        change+=2;
       }
     } else {
       ends.push_back(near.front());
@@ -241,6 +241,8 @@ void CastRays(const sensor::RangeData& range_data,
     for (auto& point : near) {
       if (probability_grid->GetProbability(point / kSubpixelScale) >
           options.hit_probability()) {
+        probability_grid->ApplyLookupTable(point / kSubpixelScale,
+                                         hit_table);
         repeat_hit++;
         is_new_hit = false;
         break;

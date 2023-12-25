@@ -372,7 +372,7 @@ void FastCorrelativeScanMatcher2D::ScoreCandidates(
       }
       else if (grid_.GetCorrespondenceCost(Eigen::Array2i(
               candidate.x_index_offset + initial_index.x(),
-              candidate.y_index_offset + initial_index.y())) < 0.7)
+              candidate.y_index_offset + initial_index.y())) < 0.82)
       {
         candidate.score = 0;
         continue;

@@ -182,6 +182,7 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
     if (cached_extrapolated_pose_.time != time) {
       sensor::OdometryData newest_odomety_ =
           GetTimedOdomety(odometry_data_, time);
+      
       transform::Rigid3d odom_diff =
           reference_odometry_.pose.inverse() * newest_odomety_.pose;
       cached_extrapolated_pose_ =
@@ -212,11 +213,22 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePoseLog(
     const common::Time time) {
   const TimedPose& newest_timed_pose = timed_pose_queue_.back();
   CHECK_GE(time, newest_timed_pose.time);
+  LOG(INFO)<< "time: " << time << ", newest_timed_pose.time: " << newest_timed_pose.time;
   auto duration = common::ToSeconds(time - newest_timed_pose.time);
   if (duration > 0.5) {
     if (cached_extrapolated_pose_.time != time) {
       sensor::OdometryData newest_odomety_ =
           GetTimedOdomety(odometry_data_, time);
+      LOG(INFO)<< "newest_timed_pose: " << newest_timed_pose.pose.translation().x() << ","
+              << newest_timed_pose.pose.translation().y() << ","
+              << newest_timed_pose.pose.translation().z() << "," << newest_timed_pose.time;
+      LOG(INFO)<< "newest_odomety_: " << newest_odomety_.pose.translation().x() << ","
+              << newest_odomety_.pose.translation().y() << ","
+              << newest_odomety_.pose.translation().z() << "," << newest_odomety_.time;
+      LOG(INFO)<< "reference_odometry_: " << reference_odometry_.pose.translation().x() << ","
+              << reference_odometry_.pose.translation().y() << ","
+              << reference_odometry_.pose.translation().z() << "," << reference_odometry_.time;
+
       transform::Rigid3d odom_diff =
           reference_odometry_.pose.inverse() * newest_odomety_.pose;
       cached_extrapolated_pose_ =
@@ -395,15 +407,15 @@ Eigen::Vector3d PoseExtrapolator::ExtrapolateTranslation(common::Time time) {
   if (extrapolation_delta > 0.5) {
     LOG(WARNING) << "extrapolation_delta: " << extrapolation_delta;
   }
-  if (linear_velocity_from_odometry_.x() > 0.3) {
+  if (std::abs(linear_velocity_from_odometry_.x()) > 0.3) {
     LOG(WARNING) << "linear_velocity_from_odometry_x: "
                  << linear_velocity_from_odometry_.x();
-    linear_velocity_from_odometry_.x() = 0.3;
+    linear_velocity_from_odometry_.x() = linear_velocity_from_odometry_.x() > 0 ? 0.3 : -0.3;
   }
-  if (linear_velocity_from_odometry_.y() > 0.3) {
+  if (std::abs(linear_velocity_from_odometry_.y()) > 0.3) {
     LOG(WARNING) << "linear_velocity_from_odometry_y: "
                  << linear_velocity_from_odometry_.y();
-    linear_velocity_from_odometry_.y() = 0.3;
+    linear_velocity_from_odometry_.y() = linear_velocity_from_odometry_.y() > 0 ? 0.3 : -0.3;
   }
   if (odometry_data_.size() < 2) {
     return extrapolation_delta * linear_velocity_from_poses_;
