@@ -58,7 +58,7 @@ sensor::OdometryData GetTimedOdomety(
       return odom;
     }
   }
-  return odometry_data.back();
+  return odometry_data.front();
 }
 
 common::Time PoseExtrapolator::GetLastPoseTime() const {
@@ -128,7 +128,7 @@ void PoseExtrapolator::AddOdometryData(
   }
   // TODO(whess): Improve by using more than just the last two odometry poses.
   // Compute extrapolation in the tracking frame.
-  const sensor::OdometryData& odometry_data_oldest = odometry_data_.front();
+  const sensor::OdometryData& odometry_data_oldest = *(--odometry_data_.end());
   const sensor::OdometryData& odometry_data_newest = odometry_data_.back();
   const double odometry_time_delta =
       common::ToSeconds(odometry_data_oldest.time - odometry_data_newest.time);
@@ -178,7 +178,7 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
   const TimedPose& newest_timed_pose = timed_pose_queue_.back();
   CHECK_GE(time, newest_timed_pose.time);
   auto duration = common::ToSeconds(time - newest_timed_pose.time);
-  if (duration > 0) {
+  if (duration > 0.5) {
     if (cached_extrapolated_pose_.time != time) {
       sensor::OdometryData newest_odomety_ =
           GetTimedOdomety(odometry_data_, time);
@@ -215,7 +215,7 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePoseLog(
   CHECK_GE(time, newest_timed_pose.time);
   LOG(INFO)<< "time: " << time << ", newest_timed_pose.time: " << newest_timed_pose.time;
   auto duration = common::ToSeconds(time - newest_timed_pose.time);
-  if (duration > 0) {
+  if (duration > 0.5) {
     if (cached_extrapolated_pose_.time != time) {
       sensor::OdometryData newest_odomety_ =
           GetTimedOdomety(odometry_data_, time);
@@ -346,10 +346,12 @@ void PoseExtrapolator::TrimOdometryData() {
     if (common::ToSeconds(odometry_data_.back().time -
                           odometry_data_.front().time) > 10) {
       odometry_data_.pop_front();
+#if 0      
       if (extrapolation_imu_tracker_) {
         AdvanceImuTracker(odometry_data_.back().time,
                           extrapolation_imu_tracker_.get());
       }
+#endif
     }
   }
 }
