@@ -51,6 +51,16 @@ std::unique_ptr<PoseExtrapolator> PoseExtrapolator::InitializeWithImu(
   return extrapolator;
 }
 
+sensor::OdometryData GetTimedOdomety(
+    std::deque<sensor::OdometryData> odometry_data, const common::Time time) {
+  for (auto& odom : odometry_data) {
+    if (odom.time > time) {
+      return odom;
+    }
+  }
+  return odometry_data.back();
+}
+
 common::Time PoseExtrapolator::GetLastPoseTime() const {
   if (timed_pose_queue_.empty()) {
     return common::Time::min();
@@ -86,7 +96,7 @@ void PoseExtrapolator::AddPose(const common::Time time,
   TrimOdometryData();
   // add by dh, 记录与定位时间最近的里程计数据
   if (!odometry_data_.empty()) {
-    reference_odometry_ = odometry_data_.back();
+    reference_odometry_ = GetTimedOdomety(odometry_data_, time);
   } else {
     reference_odometry_ = {common::Time::min(), transform::Rigid3d::Identity()};
   }
@@ -141,16 +151,6 @@ void PoseExtrapolator::AddOdometryData(
   linear_velocity_from_odometry_ =
       orientation_at_newest_odometry_time *
       linear_velocity_in_tracking_frame_at_newest_odometry_time;
-}
-
-sensor::OdometryData GetTimedOdomety(
-    std::deque<sensor::OdometryData> odometry_data, const common::Time time) {
-  for (auto& odom : odometry_data) {
-    if (odom.time > time) {
-      return odom;
-    }
-  }
-  return odometry_data.back();
 }
 
 transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
@@ -336,21 +336,16 @@ void PoseExtrapolator::TrimImuData() {
 }
 
 void PoseExtrapolator::TrimOdometryData() {
-  while (odometry_data_.size() > 2 && !timed_pose_queue_.empty() &&
-         odometry_data_[1].time <= timed_pose_queue_.back().time) {
-    odometry_data_.pop_front();
-  }
+  // while (odometry_data_.size() > 2 && !timed_pose_queue_.empty() &&
+  //        odometry_data_[1].time <= timed_pose_queue_.back().time) {
+  //   odometry_data_.pop_front();
+  // }
   if (odometry_data_.size() > 2) {
-    // add by dh, 没有激光的情况下,最多保存 300ms 里程计用于计算线速度和角速度,
+    // add by dh, 没有激光的情况下,最多保存 10s 里程计用于计算线速度和角速度,
     // 并更新位姿 tracker
     if (common::ToSeconds(odometry_data_.back().time -
-                          odometry_data_.front().time) > 0.3) {
+                          odometry_data_.front().time) > 10) {
       odometry_data_.pop_front();
-      // LOG(INFO) << "odometry_data_.size(): " << odometry_data_.size()
-      //           << ",odometry_data_.front().time: "
-      //           << odometry_data_.front().time
-      //           << ", odometry_data_.back().time: "
-      //           << odometry_data_.back().time;
       if (extrapolation_imu_tracker_) {
         AdvanceImuTracker(odometry_data_.back().time,
                           extrapolation_imu_tracker_.get());
