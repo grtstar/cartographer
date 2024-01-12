@@ -336,23 +336,10 @@ void PoseExtrapolator::TrimImuData() {
 }
 
 void PoseExtrapolator::TrimOdometryData() {
-  // while (odometry_data_.size() > 2 && !timed_pose_queue_.empty() &&
-  //        odometry_data_[1].time <= timed_pose_queue_.back().time) {
-  //   odometry_data_.pop_front();
-  // }
-  if (odometry_data_.size() > 2) {
-    // add by dh, 没有激光的情况下,最多保存 10s 里程计用于计算线速度和角速度,
-    // 并更新位姿 tracker
-    if (common::ToSeconds(odometry_data_.back().time -
-                          odometry_data_.front().time) > 10) {
-      odometry_data_.pop_front();
-#if 0      
-      if (extrapolation_imu_tracker_) {
-        AdvanceImuTracker(odometry_data_.back().time,
-                          extrapolation_imu_tracker_.get());
-      }
-#endif
-    }
+  while (odometry_data_.size() > 2 && common::ToSeconds(odometry_data_.back().time -
+                          odometry_data_.front().time) > 10 && !timed_pose_queue_.empty() &&
+         odometry_data_[1].time <= timed_pose_queue_.back().time) {
+    odometry_data_.pop_front();
   }
 }
 
