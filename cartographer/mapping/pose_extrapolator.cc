@@ -178,7 +178,7 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
   const TimedPose& newest_timed_pose = timed_pose_queue_.back();
   CHECK_GE(time, newest_timed_pose.time);
   auto duration = common::ToSeconds(time - newest_timed_pose.time);
-  if (duration > 0.5) {
+  if (duration > 0) {
     if (cached_extrapolated_pose_.time != time) {
       sensor::OdometryData newest_odomety_ =
           GetTimedOdomety(odometry_data_, time);
@@ -215,7 +215,7 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePoseLog(
   CHECK_GE(time, newest_timed_pose.time);
   LOG(INFO)<< "time: " << time << ", newest_timed_pose.time: " << newest_timed_pose.time;
   auto duration = common::ToSeconds(time - newest_timed_pose.time);
-  if (duration > 0.5) {
+  if (duration > 0) {
     if (cached_extrapolated_pose_.time != time) {
       sensor::OdometryData newest_odomety_ =
           GetTimedOdomety(odometry_data_, time);
@@ -233,6 +233,9 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePoseLog(
           reference_odometry_.pose.inverse() * newest_odomety_.pose;
       cached_extrapolated_pose_ =
           TimedPose{time, newest_timed_pose.pose * odom_diff};
+    }
+    else{
+      LOG(INFO) << "cached_extrapolated_pose_.time: " << cached_extrapolated_pose_.time << ", " << time;
     }
   } else {
     LOG(INFO) << "newest_timed_pose: " << newest_timed_pose.pose;
@@ -281,6 +284,8 @@ Eigen::Quaterniond PoseExtrapolator::EstimateGravityOrientation(
   if (odometry_data_.empty()) {
     return Eigen::Quaterniond::Identity();
   }
+  return Eigen::Quaterniond::Identity();
+
   // auto matrix = odometry_data_.back().pose.rotation().toRotationMatrix();
   Eigen::Vector3d v = odometry_data_.back().pose.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
   // LOG(INFO)<< "v: " <<  common::RadToDeg(v.x()) << "," << common::RadToDeg(v.y()) << "," << common::RadToDeg(v.z());
@@ -293,9 +298,7 @@ Eigen::Quaterniond PoseExtrapolator::EstimateGravityOrientation(
   // LOG(INFO)<< "m: " << m(0, 0) << "," << m(0, 1) << "," << m(0, 2);
   // LOG(INFO)<< "m: " << m(1, 0) << "," << m(1, 1) << "," << m(1, 2);
   // LOG(INFO)<< "m: " << m(2, 0) << "," << m(2, 1) << "," << m(2, 2);
-  return q;
-  // return odometry_data_.back().pose.rotation();
-  // return Eigen::Quaterniond::Identity();
+  //return q;
 #endif
 }
 
