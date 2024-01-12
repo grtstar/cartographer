@@ -128,7 +128,11 @@ void PoseExtrapolator::AddOdometryData(
   }
   // TODO(whess): Improve by using more than just the last two odometry poses.
   // Compute extrapolation in the tracking frame.
-  const sensor::OdometryData& odometry_data_oldest = *(--odometry_data_.end());
+  auto oldest = odometry_data_.front();
+  if(odometry_data_.size() > 5){
+    oldest = odometry_data_[odometry_data_.size() - 6];
+  }
+  const sensor::OdometryData& odometry_data_oldest = oldest;
   const sensor::OdometryData& odometry_data_newest = odometry_data_.back();
   const double odometry_time_delta =
       common::ToSeconds(odometry_data_oldest.time - odometry_data_newest.time);
