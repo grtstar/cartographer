@@ -138,10 +138,15 @@ void OrderedMultiQueue::Dispatch() {
     // add by dh, 在某一个传感器无数据时,避免计算错误
     if(common_start_time == common::Time::min())
     {
+      // LOG(ERROR) << "common_start_time is min";
       return;
     }
     if (next_data->GetTime() >= common_start_time) {
       // Happy case, we are beyond the 'common_start_time' already.
+      // if(next_data->GetSensorId() == "range0"){
+      //   LOG(INFO) << "last_dispatched_time_ is " << last_dispatched_time_;
+      //   LOG(INFO) << "next_data->GetTime() is " << next_data->GetTime();
+      // }
       if(last_dispatched_time_ < next_data->GetTime())
       {
         last_dispatched_time_ = next_data->GetTime();
@@ -163,6 +168,7 @@ void OrderedMultiQueue::Dispatch() {
       // We take a peek at the time after next data. If it also is not beyond
       // 'common_start_time' we drop 'next_data', otherwise we just found the
       // first packet to dispatch from this queue.
+
       std::unique_ptr<Data> next_data_owner = next_queue->queue.Pop();
       if (next_queue->queue.Peek<Data>()->GetTime() > common_start_time) {
         if(last_dispatched_time_ < next_data->GetTime())

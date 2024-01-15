@@ -37,26 +37,55 @@ Eigen::Vector3d TranslationFromDictionary(
 
 }  // namespace
 
-Eigen::Vector3d QuaternionToEulerAngles(const Eigen::Quaterniond& q) 
-{
-  const double q0 = q.w();
-  const double q1 = q.x();
-  const double q2 = q.y();
-  const double q3 = q.z();
-  const double t0 = 2.0 * (q0 * q1 + q2 * q3);
-  const double t1 = 1.0 - 2.0 * (q1 * q1 + q2 * q2);
-  const double roll = std::atan2(t0, t1);
+Eigen::Vector3d QuaternionToEulerAngles(const Eigen::Quaterniond& q) {
+  double r, p, y;
 
-  const double t2 = 2.0 * (q0 * q2 - q3 * q1);
-  t2 > 1.0 ? 1.0 : t2;
-  t2 < -1.0 ? -1.0 : t2;
-  const double pitch = std::asin(t2);
+  double tol = static_cast<double>(1e-15);
+  double squ;
+  double sqx;
+  double sqy;
+  double sqz;
+  squ = q.w() * q.w();
+  sqx = q.x() * q.x();
+  sqy = q.y() * q.y();
+  sqz = q.z() * q.z();
 
-  const double t3 = 2.0 * (q0 * q3 + q1 * q2);
-  const double t4 = 1.0 - 2.0 * (q2 * q2 + q3 * q3);
-  const double yaw = std::atan2(t3, t4);
+  // Pitch
+  double sarg = -2 * (q.x() * q.z() - q.w() * q.y());
+  if (sarg <= double(-1.0)) {
+    p = (double(-0.5 * M_PI));
+  } else if (sarg >= double(1.0)) {
+    p = (double(0.5 * M_PI));
+  } else {
+    p = (double(asin(sarg)));
+  }
 
-  return Eigen::Vector3d(roll, pitch, yaw);
+  // If the pitch angle is PI/2 or -PI/2, we can only compute
+  // the sum roll + yaw.  However, any combination that gives
+  // the right sum will produce the correct orientation, so we
+  // set yaw = 0 and compute roll.
+  // pitch angle is PI/2
+  if (std::abs(sarg - 1) < tol) {
+    y = (0);
+    r = (double(
+        atan2(2 * (q.x() * q.y() - q.z() * q.w()), squ - sqx + sqy - sqz)));
+  }
+  // pitch angle is -PI/2
+  else if (std::abs(sarg + 1) < tol) {
+    y = (0);
+    r = (double(
+        atan2(-2 * (q.x() * q.y() - q.z() * q.w()), squ - sqx + sqy - sqz)));
+  } else {
+    // Roll
+    r = (double(
+        atan2(2 * (q.y() * q.z() + q.w() * q.x()), squ - sqx - sqy + sqz)));
+
+    // Yaw
+    y = (double(
+        atan2(2 * (q.x() * q.y() + q.w() * q.z()), squ + sqx - sqy - sqz)));
+  }
+
+  return Eigen::Vector3d(r, p, y);
 }
 
 Eigen::Quaterniond RollPitchYaw(const double roll, const double pitch,

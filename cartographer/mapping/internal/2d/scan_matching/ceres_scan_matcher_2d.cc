@@ -90,14 +90,32 @@ void CeresScanMatcher2D::Match(const Eigen::Vector2d& target_translation,
       break;
   }
   CHECK_GT(options_.translation_weight(), 0.);
+
+  // grt
+  double translation_weight = options_.translation_weight();
+  double rotation_weight = options_.rotation_weight();
+//   double d = std::sqrt(
+//       (target_translation.x() - initial_pose_estimate.translation().x()) *
+//           (target_translation.x() - initial_pose_estimate.translation().x()) +
+//       (target_translation.y() - initial_pose_estimate.translation().y()) *
+//           (target_translation.y() - initial_pose_estimate.translation().y()));
+//   if (d > 0.05) {
+//     translation_weight *= 0.5;
+//     rotation_weight *= 0.5;
+//   }
+//   else if (d > 0.1) {
+//     translation_weight *= 0.2;
+//     rotation_weight *= 0.2;
+//   }
+
   problem.AddResidualBlock(
       TranslationDeltaCostFunctor2D::CreateAutoDiffCostFunction(
-          options_.translation_weight(), target_translation),
+          translation_weight, target_translation),
       nullptr /* loss function */, ceres_pose_estimate);
   CHECK_GT(options_.rotation_weight(), 0.);
   problem.AddResidualBlock(
       RotationDeltaCostFunctor2D::CreateAutoDiffCostFunction(
-          options_.rotation_weight(), ceres_pose_estimate[2]),
+          rotation_weight, ceres_pose_estimate[2]),
       nullptr /* loss function */, ceres_pose_estimate);
 
   ceres::Solve(ceres_solver_options_, &problem, summary);

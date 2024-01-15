@@ -117,12 +117,11 @@ std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
         // real_time_translation_rescan_matcher_->Match(
         //   initial_ceres_pose, filtered_gravity_aligned_point_cloud,
         //   *matching_submap->grid(), &translation_rematch_pose);
-        if (rotation_rematch_score > 0.7) {
+        if (rotation_rematch_score > 0.6) {
           match_score = rotation_rematch_score;
           initial_ceres_pose = rotate_remach_pose;
           LOG(WARNING) << "pose_prediction: " << pose_prediction
                        << " rotate_remach_pose: " << rotate_remach_pose;
-          pose_prediction2 = rotate_remach_pose;
           rematch_count = 0;
         }
         LOG(WARNING) << "online_correlative_scan_matching score low :" << score
@@ -318,9 +317,7 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
     LOG(INFO) << "robot yaw maybe: " << common::RadToDeg(a0) << "°, "
               << common::RadToDeg(a1) << "°, " << common::RadToDeg(a2) << "°, "
               << common::RadToDeg(a3) << "°";
-    Eigen::Vector3d euler = non_gravity_aligned_pose_prediction.rotation()
-                                .toRotationMatrix()
-                                .eulerAngles(0, 1, 2);
+    Eigen::Vector3d euler = transform::QuaternionToEulerAngles(non_gravity_aligned_pose_prediction.rotation());
     LOG(INFO) << "euler: " << common::RadToDeg(euler.x()) << "°,"
               << common::RadToDeg(euler.y()) << "°,"
               << common::RadToDeg(euler.z()) << "°";
@@ -363,9 +360,7 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
       // transform::Rigid3d(non_gravity_aligned_pose_prediction.translation(),
       // transform::RollPitchYaw(euler.x(), euler.y(), a3));
     }
-    euler = non_gravity_aligned_pose_prediction.rotation()
-                .toRotationMatrix()
-                .eulerAngles(0, 1, 2);
+    euler = transform::QuaternionToEulerAngles(non_gravity_aligned_pose_prediction.rotation());
     pose_prediction = transform::Project2D(non_gravity_aligned_pose_prediction *
                                            gravity_alignment.inverse());
     LOG(INFO) << "new euler: " << common::RadToDeg(euler.x()) << "°,"
@@ -426,7 +421,7 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
                              transform::RollPitchYaw(euler.x(), euler.y(), a3));
       pose_estimate_2d->Rotation(a3);
     }
-    euler = pose_estimate.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
+    euler = transform::QuaternionToEulerAngles(pose_estimate.rotation());
     LOG(INFO) << "pose_estimate_2d: "
               << common::RadToDeg(pose_estimate_2d->rotation().angle()) << "°";
   } else {
