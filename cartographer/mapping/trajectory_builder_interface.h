@@ -115,6 +115,9 @@ class TrajectoryBuilderInterface {
   virtual void ResetExtrapolator(common::Time time, transform::Rigid3d & pose_estimate) = 0;
   virtual void RebuildActiveSubmap(std::shared_ptr<const Submap> submap){}
   virtual bool IsWrongFrame(transform::Rigid2d pose_estimate_2d, const sensor::PointCloud & frame){return true;}
+  virtual bool IsLostLocation(){return false;}
+  virtual void SetPureLocation(bool enable){}
+  virtual void PureMap(std::vector<Eigen::Array2i> & purePoints){}
 };
 
 proto::SensorId ToProto(const TrajectoryBuilderInterface::SensorId& sensor_id);

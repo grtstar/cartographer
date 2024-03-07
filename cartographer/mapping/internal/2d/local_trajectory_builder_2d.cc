@@ -48,12 +48,12 @@ LocalTrajectoryBuilder2D::LocalTrajectoryBuilder2D(
       range_data_collator_(expected_range_sensor_ids) {
   auto opt = options_.real_time_correlative_scan_matcher_options();
   double old_angular_search_window = opt.angular_search_window();
-  opt.set_angular_search_window(old_angular_search_window * 2);
-  opt.set_linear_search_window(opt.linear_search_window() * 2);
+  opt.set_angular_search_window(old_angular_search_window * 4);
+  opt.set_linear_search_window(opt.linear_search_window());
   real_time_rotation_rescan_matcher_ =
       std::make_shared<scan_matching::RealTimeCorrelativeScanMatcher2D>(opt);
 
-  opt.set_linear_search_window(opt.linear_search_window() * 4);
+  opt.set_linear_search_window(opt.linear_search_window() * 2);
   opt.set_angular_search_window(old_angular_search_window);
   real_time_translation_rescan_matcher_ =
       std::make_shared<scan_matching::RealTimeCorrelativeScanMatcher2D>(opt);
@@ -97,38 +97,58 @@ std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
     kRealTimeCorrelativeScanMatcherScoreMetric->Observe(score);
     LOG(INFO) << "online_correlative_scan_matching score :" << score;
     match_score = score;
-    if (score > 0.7) {
+    if (score > 0.6 || matching_submap->num_range_data() < 10) {
       rematch_count = 0;
+      is_lost_location = false;
     }
-    if (rematch_count < 10) {
-      if (score < 0.5 && matching_submap->num_range_data() > 10 &&
-          filtered_gravity_aligned_point_cloud.size() > 100) {
-        rematch_count++;    
-        LOG(WARNING) << "pose_prediction: " << pose_prediction
-                     << " initial_ceres_pose: " << initial_ceres_pose;
-        transform::Rigid2d rotate_remach_pose = initial_ceres_pose;
-        double rotation_rematch_score =
-            real_time_rotation_rescan_matcher_->Match(
-                initial_ceres_pose, filtered_gravity_aligned_point_cloud,
-                *matching_submap->grid(), &rotate_remach_pose);
-
-        // transform::Rigid2d translation_rematch_pose = initial_ceres_pose;
-        // double translation_rematch_score =
-        // real_time_translation_rescan_matcher_->Match(
-        //   initial_ceres_pose, filtered_gravity_aligned_point_cloud,
-        //   *matching_submap->grid(), &translation_rematch_pose);
-        if (rotation_rematch_score > 0.6) {
-          match_score = rotation_rematch_score;
-          initial_ceres_pose = rotate_remach_pose;
+    if (score < 0.5) {
+      rematch_count++;
+      if (rematch_count < 10) {
+        if (matching_submap->num_range_data() > 10 &&
+            filtered_gravity_aligned_point_cloud.size() > 100) {
           LOG(WARNING) << "pose_prediction: " << pose_prediction
-                       << " rotate_remach_pose: " << rotate_remach_pose;
-          rematch_count = 0;
+                       << " initial_ceres_pose: " << initial_ceres_pose;
+          transform::Rigid2d rotate_remach_pose = initial_ceres_pose;
+          double rotation_rematch_score =
+              real_time_rotation_rescan_matcher_->Match(
+                  initial_ceres_pose, filtered_gravity_aligned_point_cloud,
+                  *matching_submap->grid(), &rotate_remach_pose);
+          if (rotation_rematch_score > 0.55) {
+            match_score = rotation_rematch_score;
+            initial_ceres_pose = rotate_remach_pose;
+            LOG(WARNING) << "pose_prediction: " << pose_prediction
+                         << " rotate_remach_pose: " << rotate_remach_pose;
+            rematch_count = 0;
+          } else {
+            transform::Rigid2d translation_rematch_pose = initial_ceres_pose;
+            double translation_rematch_score =
+                real_time_translation_rescan_matcher_->Match(
+                    initial_ceres_pose, filtered_gravity_aligned_point_cloud,
+                    *matching_submap->grid(), &translation_rematch_pose);
+
+            if (translation_rematch_score > 0.55) {
+              match_score = translation_rematch_score;
+              initial_ceres_pose = translation_rematch_pose;
+              LOG(WARNING) << "pose_prediction: " << pose_prediction
+                           << " translate_remach_pose: "
+                           << translation_rematch_pose;
+              rematch_count = 0;
+            } else {
+              LOG(WARNING) << "online_correlative_scan_matching score low: "
+                           << score << " rotate rematch score: "
+                           << rotation_rematch_score
+                           << " translate rematch score: "
+                           << translation_rematch_score;
+            }
+          }
         }
-        LOG(WARNING) << "online_correlative_scan_matching score low :" << score
-                     << " rematch score:" << rotation_rematch_score;
+      } else {
+        LOG(ERROR) << "rematch_count: " << rematch_count
+                   << ", location is LOST";
+        if(rematch_count > 30){
+          is_lost_location = true;
+        }
       }
-    } else {
-      LOG(ERROR) << "rematch_count: " << rematch_count << ", location is LOST";
     }
   }
 
@@ -165,7 +185,6 @@ LocalTrajectoryBuilder2D::AddRangeData(
     LOG(INFO) << "Range data collator filling buffer.";
     return nullptr;
   }
-
   const common::Time& time = synchronized_data.time;
   // Initialize extrapolator now if we do not ever use an IMU.
   if (!options_.use_imu_data()) {
@@ -239,6 +258,7 @@ LocalTrajectoryBuilder2D::AddRangeData(
       }
     }
   }
+
   ++num_accumulated_;
   // 积攒了 num_accumulated_ 数据才建图
   if (num_accumulated_ >= options_.num_accumulated_range_data()) {
@@ -317,7 +337,8 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
     LOG(INFO) << "robot yaw maybe: " << common::RadToDeg(a0) << "°, "
               << common::RadToDeg(a1) << "°, " << common::RadToDeg(a2) << "°, "
               << common::RadToDeg(a3) << "°";
-    Eigen::Vector3d euler = transform::QuaternionToEulerAngles(non_gravity_aligned_pose_prediction.rotation());
+    Eigen::Vector3d euler = transform::QuaternionToEulerAngles(
+        non_gravity_aligned_pose_prediction.rotation());
     LOG(INFO) << "euler: " << common::RadToDeg(euler.x()) << "°,"
               << common::RadToDeg(euler.y()) << "°,"
               << common::RadToDeg(euler.z()) << "°";
@@ -360,7 +381,8 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
       // transform::Rigid3d(non_gravity_aligned_pose_prediction.translation(),
       // transform::RollPitchYaw(euler.x(), euler.y(), a3));
     }
-    euler = transform::QuaternionToEulerAngles(non_gravity_aligned_pose_prediction.rotation());
+    euler = transform::QuaternionToEulerAngles(
+        non_gravity_aligned_pose_prediction.rotation());
     pose_prediction = transform::Project2D(non_gravity_aligned_pose_prediction *
                                            gravity_alignment.inverse());
     LOG(INFO) << "new euler: " << common::RadToDeg(euler.x()) << "°,"
@@ -448,24 +470,32 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
           time, transform::Embed3D(pose_prediction) * gravity_alignment);
       return nullptr;
     } else {
-      if (active_submaps_.IsWrongFrame(range_data_in_local)) {
-        LOG(ERROR) << "It is wrong frame, donnot insert!!! Score: " << score;
-      } else if (std::abs(extrapolator_->AngularVelocityFromOdometry().z()) >
-                 common::DegToRad(80)) {
-        LOG(WARNING) << "Donnot insert, angular velocity is high: "
-                     << common::RadToDeg(
-                            extrapolator_->AngularVelocityFromOdometry().z());
-      } else if (extrapolator_->AngularVelocityFromOdometry().z() >
-                 common::DegToRad(45)) {
-        auto insert_options = in_location_inserter_;
-        insert_options.set_max_hit_length(2.0);
+      if (active_submaps_.submaps().empty() || active_submaps_.submaps().front()->num_range_data() < 10)
+      {
         insertion_result = InsertIntoSubmap(
-            time, range_data_in_local, filtered_gravity_aligned_point_cloud,
-            pose_estimate, gravity_alignment.rotation(), insert_options);
-      } else {
-        insertion_result = InsertIntoSubmap(
-            time, range_data_in_local, filtered_gravity_aligned_point_cloud,
-            pose_estimate, gravity_alignment.rotation());
+              time, range_data_in_local, filtered_gravity_aligned_point_cloud,
+              pose_estimate, gravity_alignment.rotation());
+      }
+      else {
+        if (active_submaps_.IsWrongFrame(range_data_in_local)) {
+          LOG(ERROR) << "It is wrong frame, donnot insert!!! Score: " << score;
+        } else if (std::abs(extrapolator_->AngularVelocityFromOdometry().z()) >
+                  common::DegToRad(80)) {
+          LOG(WARNING) << "Donnot insert, angular velocity is high: "
+                      << common::RadToDeg(
+                              extrapolator_->AngularVelocityFromOdometry().z());
+        } else if (extrapolator_->AngularVelocityFromOdometry().z() >
+                  common::DegToRad(45)) {
+          auto insert_options = in_location_inserter_;
+          insert_options.set_max_hit_length(2.0);
+          insertion_result = InsertIntoSubmap(
+              time, range_data_in_local, filtered_gravity_aligned_point_cloud,
+              pose_estimate, gravity_alignment.rotation(), insert_options);
+        } else {
+          insertion_result = InsertIntoSubmap(
+              time, range_data_in_local, filtered_gravity_aligned_point_cloud,
+              pose_estimate, gravity_alignment.rotation());
+        }
       }
     }
   } else if (score < in_location_inserter_.insert_point_threshold()) {
@@ -628,7 +658,6 @@ void LocalTrajectoryBuilder2D::ResetExtrapolator(
           .constant_velocity()
           .imu_gravity_time_constant());
   LOG(INFO) << "3-----------------------------";
-
   extrapolator_->AddPose(time, pose_estimate);
   LOG(INFO) << "4-----------------------------";
 }
@@ -670,6 +699,22 @@ void LocalTrajectoryBuilder2D::InitializeExtrapolator(const common::Time time) {
           .imu_gravity_time_constant());
   // extrapolator_->AddPose(time, transform::Rigid3d::Identity());
   extrapolator_->AddPose(time, initial_pose);
+}
+
+bool LocalTrajectoryBuilder2D::IsLostLocation() { return is_lost_location; }
+
+void LocalTrajectoryBuilder2D::SetPureLocation(bool pure_location) {
+  is_pure_location = pure_location;
+}
+
+void LocalTrajectoryBuilder2D::PureMap(std::vector<Eigen::Array2i> & purePoints)
+{
+  if (active_submaps_.submaps().empty()) {
+    return;
+  }
+  std::shared_ptr<const Submap2D> matching_submap =
+      active_submaps_.submaps().front();
+  ((Submap2D *)matching_submap.get())->PureMap(purePoints);
 }
 
 void LocalTrajectoryBuilder2D::RegisterMetrics(

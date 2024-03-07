@@ -71,8 +71,17 @@ void OrderedMultiQueue::Add(const QueueKey& queue_key,
   const auto* last_data = it->second.queue.Peek<Data>();
   if(last_data == nullptr || data->GetTime() > last_data->GetTime())
   {
+    // std::string sensor_id = data->GetSensorId();
+    // if(sensor_id == "range0")
+    // {
+    //   LOG(INFO) << "Dispatch at " << data->GetTime() << " for " << queue_key;
+    // }
     it->second.queue.Push(std::move(data));
     Dispatch();
+    // if(sensor_id == "range0")
+    // {
+    //   LOG(INFO) << "Dispatch end for " << queue_key;
+    // }
   }
 }
 
@@ -121,7 +130,6 @@ void OrderedMultiQueue::Dispatch() {
       }
       ++it;
     }
-
     if (next_data == nullptr) {
       //// block by dh, 在某一个传感器无数据时,允许其他传感器数据继续输入
       if(queues_.empty())
@@ -139,16 +147,18 @@ void OrderedMultiQueue::Dispatch() {
     if(common_start_time == common::Time::min())
     {
       // LOG(ERROR) << "common_start_time is min";
+
       return;
     }
     if (next_data->GetTime() >= common_start_time) {
       // Happy case, we are beyond the 'common_start_time' already.
-      // if(next_data->GetSensorId() == "range0"){
-      //   LOG(INFO) << "last_dispatched_time_ is " << last_dispatched_time_;
-      //   LOG(INFO) << "next_data->GetTime() is " << next_data->GetTime();
-      // }
+     
       if(last_dispatched_time_ < next_data->GetTime())
       {
+        // if(next_data->GetSensorId() == "range0"){
+        //   LOG(INFO) << "last_dispatched_time_ is " << last_dispatched_time_;
+        //   LOG(INFO) << "next_data->GetTime() is " << next_data->GetTime();
+        // }
         last_dispatched_time_ = next_data->GetTime();
         next_queue->callback(next_queue->queue.Pop());
       }
@@ -160,6 +170,7 @@ void OrderedMultiQueue::Dispatch() {
       if (!next_queue->finished) {
         // We cannot decide whether to drop or dispatch this yet.
         CannotMakeProgress(next_queue_key);
+
         return;
       }
       last_dispatched_time_ = next_data->GetTime();

@@ -53,12 +53,12 @@ std::unique_ptr<PoseExtrapolator> PoseExtrapolator::InitializeWithImu(
 
 sensor::OdometryData GetTimedOdomety(
     std::deque<sensor::OdometryData> odometry_data, const common::Time time) {
-  for (auto& odom : odometry_data) {
-    if (odom.time > time) {
-      return odom;
+  for(auto iter = odometry_data.rbegin(); iter != odometry_data.rend(); iter++){
+    if(iter->time <= time){
+      return *iter;
     }
   }
-  return odometry_data.back();
+  return odometry_data.front();
 }
 
 common::Time PoseExtrapolator::GetLastPoseTime() const {
@@ -123,6 +123,9 @@ void PoseExtrapolator::AddOdometryData(
   }
   odometry_data_.push_back(odometry_data);
   TrimOdometryData();
+  if(odometry_data_.size() > 550){
+    LOG(INFO) << "Trim odometry_data.size(): " << odometry_data_.size();
+  }
   if (odometry_data_.size() < 2) {
     return;
   }
@@ -326,20 +329,21 @@ Eigen::Quaterniond PoseExtrapolator::EstimateGravityOrientation(
     return Eigen::Quaterniond::Identity();
   }
   return Eigen::Quaterniond::Identity();
-
-  // auto matrix = odometry_data_.back().pose.rotation().toRotationMatrix();
+#if 0
+  auto matrix = odometry_data_.back().pose.rotation().toRotationMatrix();
   Eigen::Vector3d v = odometry_data_.back().pose.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
   // LOG(INFO)<< "v: " <<  common::RadToDeg(v.x()) << "," << common::RadToDeg(v.y()) << "," << common::RadToDeg(v.z());
   const Eigen::AngleAxisd yaw_angle(-v.z(), Eigen::Vector3d::UnitZ());
   auto q = odometry_data_.back().pose.rotation() * yaw_angle;
-  // Eigen::Vector3d v2 = q.toRotationMatrix().eulerAngles(0, 1, 2);
+  Eigen::Vector3d v2 = q.toRotationMatrix().eulerAngles(0, 1, 2);
   // LOG(INFO)<< "v2: " <<  common::RadToDeg(v2.x()) << "," << common::RadToDeg(v2.y()) << "," << common::RadToDeg(v2.z());
   // LOG(INFO)<< "q: " << q.w() << "," << q.x() << "," << q.y() << "," << q.z();
-  // auto m = q.toRotationMatrix();
+  auto m = q.toRotationMatrix();
   // LOG(INFO)<< "m: " << m(0, 0) << "," << m(0, 1) << "," << m(0, 2);
   // LOG(INFO)<< "m: " << m(1, 0) << "," << m(1, 1) << "," << m(1, 2);
   // LOG(INFO)<< "m: " << m(2, 0) << "," << m(2, 1) << "," << m(2, 2);
-  //return q;
+  return q;
+#endif
 #endif
 }
 
@@ -378,8 +382,8 @@ void PoseExtrapolator::TrimImuData() {
 
 void PoseExtrapolator::TrimOdometryData() {
   while (odometry_data_.size() > 2 && common::ToSeconds(odometry_data_.back().time -
-                          odometry_data_.front().time) > 10 && !timed_pose_queue_.empty() &&
-         odometry_data_[1].time <= timed_pose_queue_.back().time) {
+                          odometry_data_.front().time) > 10 && !timed_pose_queue_.empty() /* &&
+         odometry_data_[1].time <= timed_pose_queue_.back().time*/) {
     odometry_data_.pop_front();
   }
 }
@@ -393,7 +397,7 @@ void PoseExtrapolator::AdvanceImuTracker(const common::Time time,
     imu_tracker->Advance(time);
     imu_tracker->AddImuLinearAccelerationObservation(Eigen::Vector3d::UnitZ());
     imu_tracker->AddImuAngularVelocityObservation(
-        odometry_data_.size() < 2 ? angular_velocity_from_poses_
+        (odometry_data_.size() < 2 || common::ToSeconds(time - odometry_data_.back().time) > 0.5)? angular_velocity_from_poses_
                                   : angular_velocity_from_odometry_);
     return;
   }
@@ -445,7 +449,7 @@ Eigen::Vector3d PoseExtrapolator::ExtrapolateTranslation(common::Time time) {
                  << linear_velocity_from_odometry_.y();
     linear_velocity_from_odometry_.y() = linear_velocity_from_odometry_.y() > 0 ? 0.3 : -0.3;
   }
-  if (odometry_data_.size() < 2) {
+  if (odometry_data_.size() < 2 || common::ToSeconds(time - odometry_data_.back().time) > 0.5) {
     return extrapolation_delta * linear_velocity_from_poses_;
   }
   return extrapolation_delta * linear_velocity_from_odometry_;

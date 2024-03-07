@@ -102,6 +102,21 @@ class CollatedTrajectoryBuilder : public TrajectoryBuilderInterface {
     wrapped_trajectory_builder_->ResetExtrapolator(time, pose_estimate);
   }
 
+  bool IsLostLocation() override
+  {
+    return wrapped_trajectory_builder_->IsLostLocation();
+  }
+
+  void SetPureLocation(bool enable) override
+  {
+    wrapped_trajectory_builder_->SetPureLocation(enable);
+  }
+
+ void PureMap(std::vector<Eigen::Array2i> & purePoints) override
+  {
+    wrapped_trajectory_builder_->PureMap(purePoints);
+  }
+
   void RebuildActiveSubmap(std::shared_ptr<const Submap> submap) override
   {
     wrapped_trajectory_builder_->RebuildActiveSubmap(submap);

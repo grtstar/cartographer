@@ -192,16 +192,20 @@ int TryCastRays(const sensor::RangeData& range_data,
     }
   }
 
+  LOG(INFO) << "hit change: " << change;
+
   // Now add the misses.
   for (const Eigen::Array2i& end : ends) {
     std::vector<Eigen::Array2i> ray =
         RayToPixelMask(begin, end, kSubpixelScale);
     for (const Eigen::Array2i& cell_index : ray) {
-      if (probability_grid->GetProbability(cell_index) > 0.7) {
+      if (probability_grid->GetProbability(cell_index) > 0.9) {
         change++;
       }
     }
   }
+
+  LOG(INFO) <<"miss change: " << change;
   return change;
 }
 

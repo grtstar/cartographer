@@ -53,6 +53,7 @@ class LocalTrajectoryBuilder2D {
     sensor::RangeData range_data_in_local;
     // 'nullptr' if dropped by the motion filter.
     std::unique_ptr<const InsertionResult> insertion_result;
+    bool is_lost;
   };
 
   explicit LocalTrajectoryBuilder2D(
@@ -78,6 +79,9 @@ class LocalTrajectoryBuilder2D {
   void ResetExtrapolator(common::Time time, transform::Rigid3d & pose_estimate);
   void RebuildActiveSubmap(std::shared_ptr<const Submap> submap);
   bool IsWrongFrame(transform::Rigid2d pose_estimate_2d, const sensor::PointCloud & frame);
+  bool IsLostLocation();
+  void SetPureLocation(bool isPureLocation);
+  void PureMap(std::vector<Eigen::Array2i> & purePoints);
 
   static void RegisterMetrics(metrics::FamilyFactory* family_factory);
 
@@ -135,6 +139,9 @@ class LocalTrajectoryBuilder2D {
   absl::optional<common::Time> last_sensor_time_;
 
   RangeDataCollator range_data_collator_;
+
+  bool is_lost_location = false;
+  bool is_pure_location = false;
 };
 
 }  // namespace mapping

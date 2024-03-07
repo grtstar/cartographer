@@ -167,6 +167,28 @@ class GlobalTrajectoryBuilder : public mapping::TrajectoryBuilderInterface {
     }
   }
 
+  bool IsLostLocation() override
+  {
+    if (local_trajectory_builder_) {
+      return local_trajectory_builder_->IsLostLocation();
+    }
+    return false;
+  }
+
+  void SetPureLocation(bool enable) override
+  {
+    if (local_trajectory_builder_) {
+      local_trajectory_builder_->SetPureLocation(enable);
+    }
+  }
+
+  void PureMap(std::vector<Eigen::Array2i> & purePoints) override
+  {
+    if (local_trajectory_builder_) {
+      local_trajectory_builder_->PureMap(purePoints);
+    }
+  }
+
  private:
   const int trajectory_id_;
   PoseGraph* const pose_graph_;

@@ -153,6 +153,20 @@ void Submap2D::InsertRangeData(
   set_num_range_data(num_range_data() + 1);
 }
 
+void Submap2D::PureMap(std::vector<Eigen::Array2i> purePoints) {
+  CHECK(grid_);
+  CHECK(!insertion_finished());
+  if(grid_->GetGridType() == GridType::TSDF) {
+    return;
+  }
+  auto probability_grid = static_cast<ProbabilityGrid*>(grid_.get());
+  const std::vector<uint16> miss_table = ComputeLookupTableToApplyCorrespondenceCostOdds(
+          Odds(0.1));
+  for(auto point : purePoints) {
+    probability_grid->ApplyLookupTable(point, miss_table);
+  }
+}
+
 int Submap2D::GetChangedCountByInsert(
     const sensor::RangeData& range_data,
     const RangeDataInserterInterface* range_data_inserter) {

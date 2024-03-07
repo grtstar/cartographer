@@ -119,32 +119,36 @@ double RealTimeCorrelativeScanMatcher2D::Match(
     const sensor::PointCloud& point_cloud, const Grid2D& grid,
     transform::Rigid2d* pose_estimate) const {
   CHECK(pose_estimate != nullptr);
-
+  auto time_start = std::chrono::steady_clock::now();
+  LOG(INFO)<<"Match pointcloud size:" << point_cloud.size();
   const Eigen::Rotation2Dd initial_rotation = initial_pose_estimate.rotation();
   const sensor::PointCloud rotated_point_cloud = sensor::TransformPointCloud(
       point_cloud,
       transform::Rigid3f::Rotation(Eigen::AngleAxisf(
           initial_rotation.cast<float>().angle(), Eigen::Vector3f::UnitZ())));
+  LOG(INFO)<<"Match 1 time:" << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time_start).count();
   const SearchParameters search_parameters(
       options_.linear_search_window(), options_.angular_search_window(),
       rotated_point_cloud, grid.limits().resolution());
-
+  LOG(INFO)<<"Match 2 time:" << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time_start).count();
   const std::vector<sensor::PointCloud> rotated_scans =
       GenerateRotatedScans(rotated_point_cloud, search_parameters);
   const std::vector<DiscreteScan2D> discrete_scans = DiscretizeScans(
       grid.limits(), rotated_scans,
       Eigen::Translation2f(initial_pose_estimate.translation().x(),
                            initial_pose_estimate.translation().y()));
+  LOG(INFO)<<"Match 3 time:" << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time_start).count();
   std::vector<Candidate2D> candidates =
       GenerateExhaustiveSearchCandidates(search_parameters);
   ScoreCandidates(grid, discrete_scans, search_parameters, &candidates);
-
+  LOG(INFO)<<"Match 4 time:" << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time_start).count();
   const Candidate2D& best_candidate =
       *std::max_element(candidates.begin(), candidates.end());
   *pose_estimate = transform::Rigid2d(
       {initial_pose_estimate.translation().x() + best_candidate.x,
        initial_pose_estimate.translation().y() + best_candidate.y},
       initial_rotation * Eigen::Rotation2Dd(best_candidate.orientation));
+  LOG(INFO)<<"Match 5 time:" << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time_start).count();
   return best_candidate.score;
 }
 

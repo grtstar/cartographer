@@ -67,6 +67,8 @@ class Submap2D : public Submap {
   int GetChangedCountByInsert(const sensor::RangeData& range_data,
                        const RangeDataInserterInterface* range_data_inserter);
 
+  void PureMap(std::vector<Eigen::Array2i> purePoints);
+
   void Finish();
 
  private:

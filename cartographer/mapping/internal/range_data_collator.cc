@@ -85,7 +85,7 @@ sensor::TimedPointCloudOriginData RangeDataCollator::CropAndMerge() {
                current_end_) {
       ++overlap_end;
     }
-    if (ranges.begin() < overlap_begin && !warned_for_dropped_points) {
+    if (ranges.begin() < overlap_begin && !warned_for_dropped_points && std::distance(ranges.begin(), overlap_begin) > 50) {
       LOG(WARNING) << "Dropped " << std::distance(ranges.begin(), overlap_begin)
                    << " earlier points.";
       warned_for_dropped_points = true;
