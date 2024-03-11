@@ -712,6 +712,7 @@ void LocalTrajectoryBuilder2D::PureMap(std::vector<Eigen::Array2i> & purePoints)
   if (active_submaps_.submaps().empty()) {
     return;
   }
+  LOG(INFO)<< "PureMap: purePoints.size(): " << purePoints.size();
   std::shared_ptr<const Submap2D> matching_submap =
       active_submaps_.submaps().front();
   ((Submap2D *)matching_submap.get())->PureMap(purePoints);

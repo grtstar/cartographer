@@ -151,6 +151,8 @@ void Submap2D::InsertRangeData(
   CHECK(!insertion_finished());
   range_data_inserter->Insert(range_data, grid_.get(), options);
   set_num_range_data(num_range_data() + 1);
+
+  auto probability_grid = static_cast<ProbabilityGrid*>(grid_.get());
 }
 
 void Submap2D::PureMap(std::vector<Eigen::Array2i> purePoints) {
@@ -160,11 +162,15 @@ void Submap2D::PureMap(std::vector<Eigen::Array2i> purePoints) {
     return;
   }
   auto probability_grid = static_cast<ProbabilityGrid*>(grid_.get());
+  LOG(INFO) << "Submap2D::PureMap probability_grid->limits(): " << probability_grid->limits().cell_limits().num_x_cells << " " << probability_grid->limits().cell_limits().num_y_cells;
   const std::vector<uint16> miss_table = ComputeLookupTableToApplyCorrespondenceCostOdds(
           Odds(0.1));
   for(auto point : purePoints) {
+    point.x() += probability_grid->limits().cell_limits().num_x_cells / 2;
+    point.y() += probability_grid->limits().cell_limits().num_y_cells / 2;
     probability_grid->ApplyLookupTable(point, miss_table);
   }
+  probability_grid->FinishUpdate();
 }
 
 int Submap2D::GetChangedCountByInsert(
