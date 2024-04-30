@@ -30,7 +30,7 @@ namespace {
 
 // Number of items that can be queued up before we log which queues are waiting
 // for data.
-const int kMaxQueueSize = 500;
+const int kMaxQueueSize = 1000;
 
 }  // namespace
 
@@ -197,6 +197,7 @@ void OrderedMultiQueue::CannotMakeProgress(const QueueKey& queue_key) {
   for (auto& entry : queues_) {
     if (entry.second.queue.Size() > kMaxQueueSize) {
       LOG_EVERY_N(WARNING, 60) << "Queue waiting for data: " << queue_key;
+      entry.second.queue.Pop();
       return;
     }
   }

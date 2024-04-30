@@ -103,7 +103,7 @@ std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
     }
     if (score < 0.5) {
       rematch_count++;
-      if (rematch_count < 10) {
+      if (rematch_count < 0) {
         if (matching_submap->num_range_data() > 10 &&
             filtered_gravity_aligned_point_cloud.size() > 100) {
           LOG(WARNING) << "pose_prediction: " << pose_prediction
@@ -145,7 +145,7 @@ std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
       } else {
         LOG(ERROR) << "rematch_count: " << rematch_count
                    << ", location is LOST";
-        if(rematch_count > 30){
+        if(rematch_count > 20){
           is_lost_location = true;
         }
       }
@@ -504,7 +504,7 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
     if (active_submaps_.IsWrongFrame(range_data_in_local)) {
       LOG(WARNING) << "It is wrong frame, donnot insert! Score: " << score;
     }
-    // else
+    else
     if (std::abs(extrapolator_->AngularVelocityFromOdometry().z()) >
         common::DegToRad(80)) {
       LOG(WARNING) << "Donnot insert, angular velocity is high: "
@@ -525,6 +525,10 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
   } else if (score < in_location_inserter_.donnot_insert_threshold()) {
     // LOG(INFO) << "ScanMatch Score: " << score << " donnot_insert_threshold: "
     // << in_location_inserter_.donnot_insert_threshold();
+    if (active_submaps_.IsWrongFrame(range_data_in_local)) {
+      LOG(WARNING) << "It is wrong frame, donnot insert! Score: " << score;
+    }
+    else
     if (extrapolator_->AngularVelocityFromOdometry().z() >
         common::DegToRad(80)) {
       LOG(WARNING) << "Donnot insert, angular velocity is high: "

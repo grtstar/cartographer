@@ -202,6 +202,9 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
       
       transform::Rigid3d odom_diff =
           reference_odometry_.pose.inverse() * newest_odomety_.pose;
+      if(reference_odometry_.time == common::Time::min()){
+        odom_diff = transform::Rigid3d::Identity();
+      }
       cached_extrapolated_pose_ =
           TimedPose{time, newest_timed_pose.pose * odom_diff};
     }

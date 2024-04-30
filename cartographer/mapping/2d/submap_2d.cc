@@ -152,25 +152,32 @@ void Submap2D::InsertRangeData(
   range_data_inserter->Insert(range_data, grid_.get(), options);
   set_num_range_data(num_range_data() + 1);
 
-  auto probability_grid = static_cast<ProbabilityGrid*>(grid_.get());
+  // auto probability_grid = static_cast<ProbabilityGrid*>(grid_.get());
 }
 
 void Submap2D::PureMap(std::vector<Eigen::Array2i> purePoints) {
+  
+  LOG(INFO) << "Submap2D::PureMap - purePoints.size(): " << purePoints.size();
+
   CHECK(grid_);
   CHECK(!insertion_finished());
-  if(grid_->GetGridType() == GridType::TSDF) {
+  if (grid_->GetGridType() == GridType::TSDF) {
     return;
   }
   auto probability_grid = static_cast<ProbabilityGrid*>(grid_.get());
-  LOG(INFO) << "Submap2D::PureMap probability_grid->limits(): " << probability_grid->limits().cell_limits().num_x_cells << " " << probability_grid->limits().cell_limits().num_y_cells;
-  const std::vector<uint16> miss_table = ComputeLookupTableToApplyCorrespondenceCostOdds(
-          Odds(0.1));
-  for(auto point : purePoints) {
-    point.x() += probability_grid->limits().cell_limits().num_x_cells / 2;
-    point.y() += probability_grid->limits().cell_limits().num_y_cells / 2;
-    probability_grid->ApplyLookupTable(point, miss_table);
+  LOG(INFO) << "Submap2D::PureMap probability_grid->limits(): "
+            << probability_grid->limits().cell_limits().num_x_cells << " "
+            << probability_grid->limits().cell_limits().num_y_cells;
+  const std::vector<uint16> miss_table =
+      ComputeLookupTableToApplyCorrespondenceCostOdds(Odds(0.1));
+  for (int i = 0; i < 5; i++) {
+    for (auto point : purePoints) {
+      point.x() += probability_grid->limits().cell_limits().num_x_cells / 2;
+      point.y() += probability_grid->limits().cell_limits().num_y_cells / 2;
+      probability_grid->ApplyLookupTable(point, miss_table);
+    }
+    probability_grid->FinishUpdate();
   }
-  probability_grid->FinishUpdate();
 }
 
 int Submap2D::GetChangedCountByInsert(
@@ -238,7 +245,7 @@ bool ActiveSubmaps2D::IsWrongFrame(const sensor::RangeData& range_data) {
         range_data, range_data_inserter_.get());
     LOG(INFO) << "changed: " << changed
               << " range_data.returns.size(): " << range_data.returns.size();
-    return (size_t)changed > range_data.returns.size() + 50;
+    return (size_t)changed > range_data.returns.size();
   }
   return false;
 }
