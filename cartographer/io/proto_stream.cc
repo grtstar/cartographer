@@ -73,6 +73,11 @@ ProtoStreamReader::ProtoStreamReader(const std::string& filename)
   if (!ReadSizeAsLittleEndian(&in_, &magic) || magic != kMagic) {
     in_.setstate(std::ios::failbit);
   }
+  if(!in_.good())
+  {
+    throw std::runtime_error("Failed to open proto stream '" + filename + "'.");
+    return;
+  }
   CHECK(in_.good()) << "Failed to open proto stream '" << filename << "'.";
 }
 

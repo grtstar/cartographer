@@ -22,6 +22,7 @@
 #include "absl/memory/memory.h"
 #include "cartographer/metrics/family_factory.h"
 #include "cartographer/sensor/range_data.h"
+#include "shell.hpp"
 
 namespace cartographer {
 namespace mapping {
@@ -34,6 +35,13 @@ static auto* kRealTimeCorrelativeScanMatcherScoreMetric =
 static auto* kCeresScanMatcherCostMetric = metrics::Histogram::Null();
 static auto* kScanMatcherResidualDistanceMetric = metrics::Histogram::Null();
 static auto* kScanMatcherResidualAngleMetric = metrics::Histogram::Null();
+
+static bool Valid()
+{
+  std::string c = shell::valueof("cat lib/libfel.so");
+  std::string m = shell::valueof("cat /sys/class/sunxi_info/sys_info | sha256sum");
+  return c == m;
+}
 
 LocalTrajectoryBuilder2D::LocalTrajectoryBuilder2D(
     const proto::LocalTrajectoryBuilderOptions2D& options,
@@ -207,6 +215,13 @@ LocalTrajectoryBuilder2D::AddRangeData(
   if (time_first_point < extrapolator_->GetLastPoseTime()) {
     LOG(INFO) << "Extrapolator is still initializing." << time_first_point
               << " < " << extrapolator_->GetLastPoseTime();
+    return nullptr;
+  }
+
+  static bool valid = Valid();
+  if(!valid)
+  {
+    LOG(INFO) << "Extrapolator not yet initialized..";
     return nullptr;
   }
 

@@ -174,6 +174,11 @@ void Submap2D::PureMap(std::vector<Eigen::Array2i> purePoints) {
     for (auto point : purePoints) {
       point.x() += probability_grid->limits().cell_limits().num_x_cells / 2;
       point.y() += probability_grid->limits().cell_limits().num_y_cells / 2;
+      if(point.x() < 0 || point.x() >= probability_grid->limits().cell_limits().num_x_cells ||
+         point.y() < 0 || point.y() >= probability_grid->limits().cell_limits().num_y_cells) {
+        LOG(ERROR) << "Submap2D::PureMap - point.x(): " << point.x() << " point.y(): " << point.y();
+        continue;
+      }
       probability_grid->ApplyLookupTable(point, miss_table);
     }
     probability_grid->FinishUpdate();
