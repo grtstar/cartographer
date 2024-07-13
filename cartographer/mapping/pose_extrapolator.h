@@ -94,6 +94,8 @@ class PoseExtrapolator : public PoseExtrapolatorInterface {
   std::deque<sensor::OdometryData> odometry_data_;
   Eigen::Vector3d linear_velocity_from_odometry_ = Eigen::Vector3d::Zero();
   Eigen::Vector3d angular_velocity_from_odometry_ = Eigen::Vector3d::Zero();
+
+  bool with_imu = false;
 };
 
 }  // namespace mapping

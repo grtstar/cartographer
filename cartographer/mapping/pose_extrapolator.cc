@@ -48,13 +48,16 @@ std::unique_ptr<PoseExtrapolator> PoseExtrapolator::InitializeWithImu(
   extrapolator->AddPose(
       imu_data.time,
       transform::Rigid3d::Rotation(extrapolator->imu_tracker_->orientation()));
+  extrapolator->with_imu = true;
+  LOG(INFO)<<"InitializeWithImu------------";
   return extrapolator;
 }
 
 sensor::OdometryData GetTimedOdomety(
     std::deque<sensor::OdometryData> odometry_data, const common::Time time) {
-  for(auto iter = odometry_data.rbegin(); iter != odometry_data.rend(); iter++){
-    if(iter->time <= time){
+  for (auto iter = odometry_data.rbegin(); iter != odometry_data.rend();
+       iter++) {
+    if (iter->time <= time) {
       return *iter;
     }
   }
@@ -123,7 +126,7 @@ void PoseExtrapolator::AddOdometryData(
   }
   odometry_data_.push_back(odometry_data);
   TrimOdometryData();
-  if(odometry_data_.size() > 550){
+  if (odometry_data_.size() > 550) {
     LOG(INFO) << "Trim odometry_data.size(): " << odometry_data_.size();
   }
   if (odometry_data_.size() < 2) {
@@ -132,7 +135,7 @@ void PoseExtrapolator::AddOdometryData(
   // TODO(whess): Improve by using more than just the last two odometry poses.
   // Compute extrapolation in the tracking frame.
   auto oldest = odometry_data_.front();
-  if(odometry_data_.size() > 5){
+  if (odometry_data_.size() > 5) {
     oldest = odometry_data_[odometry_data_.size() - 6];
   }
   const sensor::OdometryData& odometry_data_oldest = oldest;
@@ -145,14 +148,26 @@ void PoseExtrapolator::AddOdometryData(
       transform::RotationQuaternionToAngleAxisVector(
           odometry_pose_delta.rotation()) /
       odometry_time_delta;
-  if(std::abs(angular_velocity_from_odometry_.z()) > common::DegToRad(200)){
-    LOG(WARNING)<<"angular_velocity_from_odometry_: "<<angular_velocity_from_odometry_.z()<<", "<<common::RadToDeg(angular_velocity_from_odometry_.z())<<"°";
-    LOG(WARNING)<<"oldest: ["<<odometry_data_oldest.pose.translation().x()<<", "<<odometry_data_oldest.pose.translation().y()<<"], "<<transform::RotationQuaternionToAngleAxisVector(odometry_data_oldest.pose.rotation()).z();
-    LOG(WARNING)<<"newest: [ "<<odometry_data_newest.pose.translation().x()<<", "<<odometry_data_newest.pose.translation().y()<<"], "<<transform::RotationQuaternionToAngleAxisVector(odometry_data_newest.pose.rotation()).z();
-    LOG(WARNING)<<"odometry_time_delta: "<<odometry_time_delta<<", "<<odometry_data_oldest.time<<", "<<odometry_data_newest.time;
+  if (std::abs(angular_velocity_from_odometry_.z()) > common::DegToRad(200)) {
+    LOG(WARNING) << "angular_velocity_from_odometry_: "
+                 << angular_velocity_from_odometry_.z() << ", "
+                 << common::RadToDeg(angular_velocity_from_odometry_.z())
+                 << "°";
+    LOG(WARNING) << "oldest: [" << odometry_data_oldest.pose.translation().x()
+                 << ", " << odometry_data_oldest.pose.translation().y() << "], "
+                 << transform::RotationQuaternionToAngleAxisVector(
+                        odometry_data_oldest.pose.rotation())
+                        .z();
+    LOG(WARNING) << "newest: [ " << odometry_data_newest.pose.translation().x()
+                 << ", " << odometry_data_newest.pose.translation().y() << "], "
+                 << transform::RotationQuaternionToAngleAxisVector(
+                        odometry_data_newest.pose.rotation())
+                        .z();
+    LOG(WARNING) << "odometry_time_delta: " << odometry_time_delta << ", "
+                 << odometry_data_oldest.time << ", "
+                 << odometry_data_newest.time;
   }
-  if(std::abs(odometry_time_delta) < 0.0012)
-  {
+  if (std::abs(odometry_time_delta) < 0.0012) {
     return;
   }
   if (timed_pose_queue_.empty()) {
@@ -199,10 +214,10 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
     if (cached_extrapolated_pose_.time != time) {
       sensor::OdometryData newest_odomety_ =
           GetTimedOdomety(odometry_data_, time);
-      
+
       transform::Rigid3d odom_diff =
           reference_odometry_.pose.inverse() * newest_odomety_.pose;
-      if(reference_odometry_.time == common::Time::min()){
+      if (reference_odometry_.time == common::Time::min()) {
         odom_diff = transform::Rigid3d::Identity();
       }
       cached_extrapolated_pose_ =
@@ -225,64 +240,83 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
 #endif
 }
 
-Eigen::Vector3d PoseExtrapolator::AngularVelocityFromOdometry()
-{
+Eigen::Vector3d PoseExtrapolator::AngularVelocityFromOdometry() {
   return angular_velocity_from_odometry_;
 }
 transform::Rigid3d PoseExtrapolator::ExtrapolatePoseLog(
     const common::Time time) {
   const TimedPose& newest_timed_pose = timed_pose_queue_.back();
   CHECK_GE(time, newest_timed_pose.time);
-  LOG(INFO)<< "time: " << time << ", newest_timed_pose.time: " << newest_timed_pose.time;
+  LOG(INFO) << "time: " << time
+            << ", newest_timed_pose.time: " << newest_timed_pose.time;
   auto duration = common::ToSeconds(time - newest_timed_pose.time);
   if (duration > 0.5) {
     if (cached_extrapolated_pose_.time != time) {
       sensor::OdometryData newest_odomety_ =
           GetTimedOdomety(odometry_data_, time);
-      LOG(INFO)<< "newest_timed_pose: " << newest_timed_pose.pose.translation().x() << ","
-              << newest_timed_pose.pose.translation().y() << ","
-              << newest_timed_pose.pose.translation().z() << ","
-              << common::RadToDeg(transform::QuaternionToEulerAngles(newest_timed_pose.pose.rotation()).z()) << "°,"
-              << newest_timed_pose.time;
-      LOG(INFO)<< "newest_odomety_: " << newest_odomety_.pose.translation().x() << ","
-              << newest_odomety_.pose.translation().y() << ","
-              << newest_odomety_.pose.translation().z() << "," 
-              << common::RadToDeg(transform::QuaternionToEulerAngles(newest_odomety_.pose.rotation()).z()) << "°,"
-              << newest_odomety_.time;
-      LOG(INFO)<< "reference_odometry_: " << reference_odometry_.pose.translation().x() << ","
-              << reference_odometry_.pose.translation().y() << ","
-              << reference_odometry_.pose.translation().z() << "," 
-              << common::RadToDeg(transform::QuaternionToEulerAngles(reference_odometry_.pose.rotation()).z()) << "°,"
-              << reference_odometry_.time;
+      LOG(INFO) << "newest_timed_pose: "
+                << newest_timed_pose.pose.translation().x() << ","
+                << newest_timed_pose.pose.translation().y() << ","
+                << newest_timed_pose.pose.translation().z() << ","
+                << common::RadToDeg(transform::QuaternionToEulerAngles(
+                                        newest_timed_pose.pose.rotation())
+                                        .z())
+                << "°," << newest_timed_pose.time;
+      LOG(INFO) << "newest_odomety_: " << newest_odomety_.pose.translation().x()
+                << "," << newest_odomety_.pose.translation().y() << ","
+                << newest_odomety_.pose.translation().z() << ","
+                << common::RadToDeg(transform::QuaternionToEulerAngles(
+                                        newest_odomety_.pose.rotation())
+                                        .z())
+                << "°," << newest_odomety_.time;
+      LOG(INFO) << "reference_odometry_: "
+                << reference_odometry_.pose.translation().x() << ","
+                << reference_odometry_.pose.translation().y() << ","
+                << reference_odometry_.pose.translation().z() << ","
+                << common::RadToDeg(transform::QuaternionToEulerAngles(
+                                        reference_odometry_.pose.rotation())
+                                        .z())
+                << "°," << reference_odometry_.time;
 
       transform::Rigid3d odom_diff =
           reference_odometry_.pose.inverse() * newest_odomety_.pose;
       cached_extrapolated_pose_ =
           TimedPose{time, newest_timed_pose.pose * odom_diff};
-    }
-    else{
-      LOG(INFO)<< "cached_extrapolated_pose_: " << cached_extrapolated_pose_.pose.translation().x() << ","
-              << cached_extrapolated_pose_.pose.translation().y() << ","
-              << cached_extrapolated_pose_.pose.translation().z() << ","
-              << common::RadToDeg(transform::QuaternionToEulerAngles(cached_extrapolated_pose_.pose.rotation()).z()) << "°,"
-              << cached_extrapolated_pose_.time;
+    } else {
+      LOG(INFO) << "cached_extrapolated_pose_: "
+                << cached_extrapolated_pose_.pose.translation().x() << ","
+                << cached_extrapolated_pose_.pose.translation().y() << ","
+                << cached_extrapolated_pose_.pose.translation().z() << ","
+                << common::RadToDeg(
+                       transform::QuaternionToEulerAngles(
+                           cached_extrapolated_pose_.pose.rotation())
+                           .z())
+                << "°," << cached_extrapolated_pose_.time;
       sensor::OdometryData newest_odomety_ =
           GetTimedOdomety(odometry_data_, time);
-      LOG(INFO)<< "newest_timed_pose: " << newest_timed_pose.pose.translation().x() << ","
-              << newest_timed_pose.pose.translation().y() << ","
-              << newest_timed_pose.pose.translation().z() << ","
-              << common::RadToDeg(transform::QuaternionToEulerAngles(newest_timed_pose.pose.rotation()).z()) << "°,"
-              << newest_timed_pose.time;
-      LOG(INFO)<< "newest_odomety_: " << newest_odomety_.pose.translation().x() << ","
-              << newest_odomety_.pose.translation().y() << ","
-              << newest_odomety_.pose.translation().z() << "," 
-              << common::RadToDeg(transform::QuaternionToEulerAngles(newest_odomety_.pose.rotation()).z()) << "°,"
-              << newest_odomety_.time;
-      LOG(INFO)<< "reference_odometry_: " << reference_odometry_.pose.translation().x() << ","
-              << reference_odometry_.pose.translation().y() << ","
-              << reference_odometry_.pose.translation().z() << "," 
-              << common::RadToDeg(transform::QuaternionToEulerAngles(reference_odometry_.pose.rotation()).z()) << "°,"
-              << reference_odometry_.time;
+      LOG(INFO) << "newest_timed_pose: "
+                << newest_timed_pose.pose.translation().x() << ","
+                << newest_timed_pose.pose.translation().y() << ","
+                << newest_timed_pose.pose.translation().z() << ","
+                << common::RadToDeg(transform::QuaternionToEulerAngles(
+                                        newest_timed_pose.pose.rotation())
+                                        .z())
+                << "°," << newest_timed_pose.time;
+      LOG(INFO) << "newest_odomety_: " << newest_odomety_.pose.translation().x()
+                << "," << newest_odomety_.pose.translation().y() << ","
+                << newest_odomety_.pose.translation().z() << ","
+                << common::RadToDeg(transform::QuaternionToEulerAngles(
+                                        newest_odomety_.pose.rotation())
+                                        .z())
+                << "°," << newest_odomety_.time;
+      LOG(INFO) << "reference_odometry_: "
+                << reference_odometry_.pose.translation().x() << ","
+                << reference_odometry_.pose.translation().y() << ","
+                << reference_odometry_.pose.translation().z() << ","
+                << common::RadToDeg(transform::QuaternionToEulerAngles(
+                                        reference_odometry_.pose.rotation())
+                                        .z())
+                << "°," << reference_odometry_.time;
     }
   } else {
     LOG(INFO) << "newest_timed_pose: " << newest_timed_pose.pose;
@@ -323,15 +357,19 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePoseLog(
 
 Eigen::Quaterniond PoseExtrapolator::EstimateGravityOrientation(
     const common::Time time) {
-#if 0
-  ImuTracker imu_tracker = *imu_tracker_;
-  AdvanceImuTracker(time, &imu_tracker);
-  return imu_tracker.orientation();
-#else
-  if (odometry_data_.empty()) {
+  if (with_imu) {
+    ImuTracker imu_tracker = *imu_tracker_;
+    AdvanceImuTracker(time, &imu_tracker);
+    // Eigen::Vector3d v2 = imu_tracker.orientation().toRotationMatrix().eulerAngles(0, 1, 2);
+    // LOG(INFO)<< "v2: " <<  common::RadToDeg(v2.x()) << "," << common::RadToDeg(v2.y()) << "," << common::RadToDeg(v2.z());
+    return imu_tracker.orientation();
+  } else {
+    if (odometry_data_.empty()) {
+      return Eigen::Quaterniond::Identity();
+    }
     return Eigen::Quaterniond::Identity();
   }
-  return Eigen::Quaterniond::Identity();
+
 #if 0
   auto matrix = odometry_data_.back().pose.rotation().toRotationMatrix();
   Eigen::Vector3d v = odometry_data_.back().pose.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
@@ -346,7 +384,6 @@ Eigen::Quaterniond PoseExtrapolator::EstimateGravityOrientation(
   // LOG(INFO)<< "m: " << m(1, 0) << "," << m(1, 1) << "," << m(1, 2);
   // LOG(INFO)<< "m: " << m(2, 0) << "," << m(2, 1) << "," << m(2, 2);
   return q;
-#endif
 #endif
 }
 
@@ -400,8 +437,10 @@ void PoseExtrapolator::AdvanceImuTracker(const common::Time time,
     imu_tracker->Advance(time);
     imu_tracker->AddImuLinearAccelerationObservation(Eigen::Vector3d::UnitZ());
     imu_tracker->AddImuAngularVelocityObservation(
-        (odometry_data_.size() < 2 || common::ToSeconds(time - odometry_data_.back().time) > 0.5)? angular_velocity_from_poses_
-                                  : angular_velocity_from_odometry_);
+        (odometry_data_.size() < 2 ||
+         common::ToSeconds(time - odometry_data_.back().time) > 0.5)
+            ? angular_velocity_from_poses_
+            : angular_velocity_from_odometry_);
     return;
   }
   if (imu_tracker->time() < imu_data_.front().time) {
@@ -445,14 +484,17 @@ Eigen::Vector3d PoseExtrapolator::ExtrapolateTranslation(common::Time time) {
   if (std::abs(linear_velocity_from_odometry_.x()) > 0.3) {
     LOG(WARNING) << "linear_velocity_from_odometry_x: "
                  << linear_velocity_from_odometry_.x();
-    linear_velocity_from_odometry_.x() = linear_velocity_from_odometry_.x() > 0 ? 0.3 : -0.3;
+    linear_velocity_from_odometry_.x() =
+        linear_velocity_from_odometry_.x() > 0 ? 0.3 : -0.3;
   }
   if (std::abs(linear_velocity_from_odometry_.y()) > 0.3) {
     LOG(WARNING) << "linear_velocity_from_odometry_y: "
                  << linear_velocity_from_odometry_.y();
-    linear_velocity_from_odometry_.y() = linear_velocity_from_odometry_.y() > 0 ? 0.3 : -0.3;
+    linear_velocity_from_odometry_.y() =
+        linear_velocity_from_odometry_.y() > 0 ? 0.3 : -0.3;
   }
-  if (odometry_data_.size() < 2 || common::ToSeconds(time - odometry_data_.back().time) > 0.5) {
+  if (odometry_data_.size() < 2 ||
+      common::ToSeconds(time - odometry_data_.back().time) > 0.5) {
     return extrapolation_delta * linear_velocity_from_poses_;
   }
   return extrapolation_delta * linear_velocity_from_odometry_;

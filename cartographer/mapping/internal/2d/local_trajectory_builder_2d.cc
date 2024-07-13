@@ -24,6 +24,7 @@
 #include "cartographer/sensor/range_data.h"
 #include "shell.hpp"
 
+#define kMinDataNum 50
 namespace cartographer {
 namespace mapping {
 
@@ -38,8 +39,16 @@ static auto* kScanMatcherResidualAngleMetric = metrics::Histogram::Null();
 
 static bool Valid()
 {
-  std::string c = shell::valueof("cat lib/libfel.so");
-  std::string m = shell::valueof("cat /sys/class/sunxi_info/sys_info | sha256sum");
+  char a[] = {'c', 'a', 't', ' ', 'l', 'i', 'b', '/', 'l', 'i', 'b', 'f', 'e', 'l', '.', 's', 'o', '\0'};
+  char b[] = {'c', 'a', 't', ' ', '/', 's', 'y', 's', '/', 'c', 'l', 'a', 's', 's', '/', 's', 'u', 'n', 'x', 'i', '_', 'i', 'n', 'f', 'o', '/', 's', 'y', 's', '_', 'i', 'n', 'f', 'o', '\0'};
+  char seed[] = {'7', '7', '7', 'b', 'Z', 'f', '*', '\0'};
+  std::string c = shell::valueof(a);
+  std::string k = shell::valueof(b);
+  k += seed;
+  char f[] = {'s', 'h', 'a', '2', '5', '6', 's', 'u', 'm', ' ', '\0'};
+  char e[] = {'e', 'c', 'h', 'o', ' ', '\0'};
+  std::string v = (std::string)e + "\"" + k + "\"" + " | " + f;
+  std::string m = shell::valueof(v);
   return c == m;
 }
 
@@ -61,8 +70,8 @@ LocalTrajectoryBuilder2D::LocalTrajectoryBuilder2D(
   real_time_rotation_rescan_matcher_ =
       std::make_shared<scan_matching::RealTimeCorrelativeScanMatcher2D>(opt);
 
-  opt.set_linear_search_window(opt.linear_search_window() * 2);
-  opt.set_angular_search_window(old_angular_search_window);
+  opt.set_linear_search_window(opt.linear_search_window() * 5);
+  opt.set_angular_search_window(common::DegToRad(1.0));
   real_time_translation_rescan_matcher_ =
       std::make_shared<scan_matching::RealTimeCorrelativeScanMatcher2D>(opt);
 }
@@ -96,7 +105,6 @@ std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
   // The online correlative scan matcher will refine the initial estimate for
   // the Ceres scan matcher.
   transform::Rigid2d initial_ceres_pose = pose_prediction;
-  transform::Rigid2d pose_prediction2 = pose_prediction;
 
   if (options_.use_online_correlative_scan_matching()) {
     const double score = real_time_correlative_scan_matcher_.Match(
@@ -105,64 +113,38 @@ std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
     kRealTimeCorrelativeScanMatcherScoreMetric->Observe(score);
     LOG(INFO) << "online_correlative_scan_matching score :" << score;
     match_score = score;
-    if (score > 0.6 || matching_submap->num_range_data() < 10) {
+    // if(score < 0.65 && score >= 0.6)
+    // {
+    //    transform::Rigid2d translation_rematch_pose = pose_prediction;
+    //         double translation_rematch_score =
+    //             real_time_translation_rescan_matcher_->Match(
+    //                 initial_ceres_pose, filtered_gravity_aligned_point_cloud,
+    //                 *matching_submap->grid(), &translation_rematch_pose);
+    //   LOG(INFO) << "online_correlative_scan_rematching score :" << translation_rematch_score;
+    //   if(translation_rematch_score > score + 0.1) {
+    //       initial_ceres_pose = translation_rematch_pose;
+    //        match_score = translation_rematch_score;
+    //   }
+    //   else
+    //     match_score = score;
+    // }
+    if (score > 0.6 || matching_submap->num_range_data() < kMinDataNum) {
       rematch_count = 0;
       is_lost_location = false;
     }
     if (score < 0.5) {
       rematch_count++;
-      if (rematch_count < 0) {
-        if (matching_submap->num_range_data() > 10 &&
-            filtered_gravity_aligned_point_cloud.size() > 100) {
-          LOG(WARNING) << "pose_prediction: " << pose_prediction
-                       << " initial_ceres_pose: " << initial_ceres_pose;
-          transform::Rigid2d rotate_remach_pose = initial_ceres_pose;
-          double rotation_rematch_score =
-              real_time_rotation_rescan_matcher_->Match(
-                  initial_ceres_pose, filtered_gravity_aligned_point_cloud,
-                  *matching_submap->grid(), &rotate_remach_pose);
-          if (rotation_rematch_score > 0.55) {
-            match_score = rotation_rematch_score;
-            initial_ceres_pose = rotate_remach_pose;
-            LOG(WARNING) << "pose_prediction: " << pose_prediction
-                         << " rotate_remach_pose: " << rotate_remach_pose;
-            rematch_count = 0;
-          } else {
-            transform::Rigid2d translation_rematch_pose = initial_ceres_pose;
-            double translation_rematch_score =
-                real_time_translation_rescan_matcher_->Match(
-                    initial_ceres_pose, filtered_gravity_aligned_point_cloud,
-                    *matching_submap->grid(), &translation_rematch_pose);
-
-            if (translation_rematch_score > 0.55) {
-              match_score = translation_rematch_score;
-              initial_ceres_pose = translation_rematch_pose;
-              LOG(WARNING) << "pose_prediction: " << pose_prediction
-                           << " translate_remach_pose: "
-                           << translation_rematch_pose;
-              rematch_count = 0;
-            } else {
-              LOG(WARNING) << "online_correlative_scan_matching score low: "
-                           << score << " rotate rematch score: "
-                           << rotation_rematch_score
-                           << " translate rematch score: "
-                           << translation_rematch_score;
-            }
-          }
-        }
-      } else {
-        LOG(ERROR) << "rematch_count: " << rematch_count
+      LOG(ERROR) << "rematch_count: " << rematch_count
                    << ", location is LOST";
-        if(rematch_count > 20){
-          is_lost_location = true;
-        }
+      if(rematch_count > 20){
+        is_lost_location = true;
       }
     }
   }
 
   auto pose_observation = absl::make_unique<transform::Rigid2d>();
   ceres::Solver::Summary summary;
-  ceres_scan_matcher_.Match(pose_prediction2.translation(), initial_ceres_pose,
+  ceres_scan_matcher_.Match(pose_prediction.translation(), initial_ceres_pose,
                             filtered_gravity_aligned_point_cloud,
                             *matching_submap->grid(), pose_observation.get(),
                             &summary);
@@ -217,13 +199,26 @@ LocalTrajectoryBuilder2D::AddRangeData(
               << " < " << extrapolator_->GetLastPoseTime();
     return nullptr;
   }
-
+#if defined __aarch64__ || defined __arm__
   static bool valid = Valid();
   if(!valid)
   {
-    LOG(INFO) << "Extrapolator not yet initialized..";
+    std::string msg;
+    msg.push_back('A');
+    msg.push_back('u');
+    msg.push_back('t');
+    msg.push_back('h');
+    msg.push_back(' ');
+    msg.push_back('F');
+    msg.push_back('a');
+    msg.push_back('i');
+    msg.push_back('l');
+    msg.push_back('e');
+    msg.push_back('d');
+    LOG(INFO) << msg;
     return nullptr;
   }
+#endif
 
   std::vector<transform::Rigid3f> range_data_poses;
   range_data_poses.reserve(synchronized_data.ranges.size());
@@ -478,14 +473,14 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(
   std::unique_ptr<InsertionResult> insertion_result = nullptr;
   if (score < 0.5) {
     if (!active_submaps_.submaps().empty() &&
-        active_submaps_.submaps().front()->num_range_data() > 10) {
+        active_submaps_.submaps().front()->num_range_data() > kMinDataNum) {
       LOG(WARNING) << "ScanMatch Score Low: " << score
                    << " use prediction pose";
       extrapolator_->AddPose(
           time, transform::Embed3D(pose_prediction) * gravity_alignment);
       return nullptr;
     } else {
-      if (active_submaps_.submaps().empty() || active_submaps_.submaps().front()->num_range_data() < 10)
+      if (active_submaps_.submaps().empty() || active_submaps_.submaps().front()->num_range_data() < kMinDataNum)
       {
         insertion_result = InsertIntoSubmap(
               time, range_data_in_local, filtered_gravity_aligned_point_cloud,
