@@ -188,9 +188,9 @@ void PoseExtrapolator::AddOdometryData(
 transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
   /*
     by dh
-    cartographer 强依赖激光数据,位姿外推器仅使用 odom 和 imu 计算线速度和角速度
-    通过线速度,角速度,时间差和上一帧激光定位使用匀速运动模型来推出当前位姿,
-    这对于激光数据会暂停的情况极度不友好,此时并不满足匀速运动模型
+    cartographer 强依赖激光数据，位姿外推器仅使用 odom 和 imu 计算线速度和角速度
+    通过线速度，角速度，时间差和上一帧激光定位使用匀速运动模型来推出当前位姿，
+    这对于激光数据会暂停的情况极度不友好，此时并不满足匀速运动模型
     所以需要修改为通过里程数据累积和上一帧激光定位来推出当前位姿
   */
 #if 0
@@ -210,7 +210,7 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
   const TimedPose& newest_timed_pose = timed_pose_queue_.back();
   CHECK_GE(time, newest_timed_pose.time);
   auto duration = common::ToSeconds(time - newest_timed_pose.time);
-  if (duration > 0.5) {
+  if (duration > 0.3) {
     if (cached_extrapolated_pose_.time != time) {
       sensor::OdometryData newest_odomety_ =
           GetTimedOdomety(odometry_data_, time);
@@ -248,9 +248,9 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePoseLog(
   const TimedPose& newest_timed_pose = timed_pose_queue_.back();
   CHECK_GE(time, newest_timed_pose.time);
   LOG(INFO) << "time: " << time
-            << ", newest_timed_pose.time: " << newest_timed_pose.time;
+            << ", newest_timed_pose.time: " << newest_timed_pose.time << ", duration: " << common::ToSeconds(time - newest_timed_pose.time);
   auto duration = common::ToSeconds(time - newest_timed_pose.time);
-  if (duration > 0.5) {
+  if (duration > 0.3) {
     if (cached_extrapolated_pose_.time != time) {
       sensor::OdometryData newest_odomety_ =
           GetTimedOdomety(odometry_data_, time);
@@ -357,19 +357,28 @@ transform::Rigid3d PoseExtrapolator::ExtrapolatePoseLog(
 
 Eigen::Quaterniond PoseExtrapolator::EstimateGravityOrientation(
     const common::Time time) {
-  if (with_imu) {
-    ImuTracker imu_tracker = *imu_tracker_;
-    AdvanceImuTracker(time, &imu_tracker);
-    // Eigen::Vector3d v2 = imu_tracker.orientation().toRotationMatrix().eulerAngles(0, 1, 2);
-    // LOG(INFO)<< "v2: " <<  common::RadToDeg(v2.x()) << "," << common::RadToDeg(v2.y()) << "," << common::RadToDeg(v2.z());
-    return imu_tracker.orientation();
-  } else {
-    if (odometry_data_.empty()) {
-      return Eigen::Quaterniond::Identity();
-    }
+#if 0
+  ImuTracker imu_tracker = *imu_tracker_;
+  AdvanceImuTracker(time, &imu_tracker);
+  return imu_tracker.orientation();
+#else
+  // if (with_imu) {
+  //   ImuTracker imu_tracker = *imu_tracker_;
+  //   AdvanceImuTracker(time, &imu_tracker);
+  //   // Eigen::Vector3d v2 = imu_tracker.orientation().toRotationMatrix().eulerAngles(0, 1, 2);
+  //   // LOG(INFO)<< "v2: " <<  common::RadToDeg(v2.x()) << "," << common::RadToDeg(v2.y()) << "," << common::RadToDeg(v2.z());
+  //   return imu_tracker.orientation();
+  // } else {
+  //   if (odometry_data_.empty()) {
+  //     return Eigen::Quaterniond::Identity();
+  //   }
+  //   return Eigen::Quaterniond::Identity();
+  // }
+  if (odometry_data_.empty()) {
     return Eigen::Quaterniond::Identity();
   }
-
+  return odometry_data_.back().pose.rotation();
+#endif
 #if 0
   auto matrix = odometry_data_.back().pose.rotation().toRotationMatrix();
   Eigen::Vector3d v = odometry_data_.back().pose.rotation().toRotationMatrix().eulerAngles(0, 1, 2);
