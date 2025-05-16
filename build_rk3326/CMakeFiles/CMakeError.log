@@ -1,11 +1,11 @@
 Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
 Change Dir: /home/grt/ls/reality/depends/third_party/cartographer/build_rk3326/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/ninja cmTC_66d8b && [1/2] Building C object CMakeFiles/cmTC_66d8b.dir/src.c.o
-[2/2] Linking C executable cmTC_66d8b
-FAILED: cmTC_66d8b 
-: && /home/grt/ls/reality/depends/rk3266/host/bin/aarch64-linux-gcc --sysroot=/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot -DCMAKE_HAVE_LIBC_PTHREAD  -rdynamic  -Wl,-rpath-link,/home/grt/ls/reality/depends/rk3266/common/arm64/lib CMakeFiles/cmTC_66d8b.dir/src.c.o  -o cmTC_66d8b   && :
-/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/ld: CMakeFiles/cmTC_66d8b.dir/src.c.o: in function `main':
+Run Build Command(s):/usr/bin/ninja cmTC_31566 && [1/2] Building C object CMakeFiles/cmTC_31566.dir/src.c.o
+[2/2] Linking C executable cmTC_31566
+FAILED: cmTC_31566 
+: && /home/grt/ls/reality/depends/rk3266/host/bin/aarch64-linux-gcc --sysroot=/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot -DCMAKE_HAVE_LIBC_PTHREAD  -rdynamic  -Wl,-rpath-link,/home/grt/ls/reality/depends/rk3266/common/arm64/lib CMakeFiles/cmTC_31566.dir/src.c.o  -o cmTC_31566   && :
+/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/ld: CMakeFiles/cmTC_31566.dir/src.c.o: in function `main':
 src.c:(.text.startup+0x1c): undefined reference to `pthread_create'
 /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/ld: src.c:(.text.startup+0x24): undefined reference to `pthread_detach'
 /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/ld: src.c:(.text.startup+0x30): undefined reference to `pthread_join'
@@ -36,10 +36,10 @@ int main(void)
 Determining if the function pthread_create exists in the pthreads failed with the following output:
 Change Dir: /home/grt/ls/reality/depends/third_party/cartographer/build_rk3326/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/ninja cmTC_e909f && [1/2] Building C object CMakeFiles/cmTC_e909f.dir/CheckFunctionExists.c.o
-[2/2] Linking C executable cmTC_e909f
-FAILED: cmTC_e909f 
-: && /home/grt/ls/reality/depends/rk3266/host/bin/aarch64-linux-gcc --sysroot=/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot -DCHECK_FUNCTION_EXISTS=pthread_create  -rdynamic  -Wl,-rpath-link,/home/grt/ls/reality/depends/rk3266/common/arm64/lib CMakeFiles/cmTC_e909f.dir/CheckFunctionExists.c.o  -o cmTC_e909f  -lpthreads && :
+Run Build Command(s):/usr/bin/ninja cmTC_5e9fe && [1/2] Building C object CMakeFiles/cmTC_5e9fe.dir/CheckFunctionExists.c.o
+[2/2] Linking C executable cmTC_5e9fe
+FAILED: cmTC_5e9fe 
+: && /home/grt/ls/reality/depends/rk3266/host/bin/aarch64-linux-gcc --sysroot=/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot -DCHECK_FUNCTION_EXISTS=pthread_create  -rdynamic  -Wl,-rpath-link,/home/grt/ls/reality/depends/rk3266/common/arm64/lib CMakeFiles/cmTC_5e9fe.dir/CheckFunctionExists.c.o  -o cmTC_5e9fe  -lpthreads && :
 /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
 ninja: build stopped: subcommand failed.

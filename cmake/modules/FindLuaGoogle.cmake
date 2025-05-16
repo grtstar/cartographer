@@ -96,6 +96,7 @@ function(_lua_set_version_vars)
 
     list(APPEND _lua_include_subdirs "include/lua" "include")
 
+
     foreach (ver IN LISTS _lua_append_versions)
         string(REGEX MATCH "^([0-9]+)\\.([0-9]+)$" _ver "${ver}")
         list(APPEND _lua_include_subdirs
@@ -151,6 +152,7 @@ endfunction(_lua_check_header_version)
 _lua_set_version_vars()
 
 if (LUA_INCLUDE_DIR AND EXISTS "${LUA_INCLUDE_DIR}/lua.h")
+    message(STATUS "Found Lua include dir: ${LUA_INCLUDE_DIR}")
     _lua_check_header_version("${LUA_INCLUDE_DIR}/lua.h")
 endif ()
 
@@ -168,6 +170,13 @@ if (NOT LUA_VERSION_STRING)
           /opt/csw # Blastwave
           /opt
         )
+        message(STATUS "SYSROOT: $ENV{SYSROOT}/${subdir}/lua.h")
+        message(STATUS "Found LUA_INCLUDE_PREFIX: ${LUA_INCLUDE_PREFIX}")
+        # Check if $ENV{SYSROOT}/${subdir}/lua.h exists and set LUA_INCLUDE_PREFIX accordingly
+        if(EXISTS "$ENV{SYSROOT}/${subdir}/lua.h")
+            set(LUA_INCLUDE_PREFIX "$ENV{SYSROOT}")
+            message(STATUS "Found lua.h in SYSROOT: $ENV{SYSROOT}/${subdir}/lua.h")
+        endif()
         if (LUA_INCLUDE_PREFIX)
             _lua_check_header_version("${LUA_INCLUDE_PREFIX}/${subdir}/lua.h")
             if (LUA_VERSION_STRING)

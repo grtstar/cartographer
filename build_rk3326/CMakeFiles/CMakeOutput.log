@@ -1,5 +1,5 @@
 The target system is: Linux -  - arm
-The host system is: Linux - 5.15.167.4-microsoft-standard-WSL2 - x86_64
+The host system is: Linux - 6.6.87.1-microsoft-standard-WSL2 - x86_64
 Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
 Compiler: /home/grt/ls/reality/depends/rk3266/host/bin/aarch64-linux-gcc 
 Build flags: 
@@ -29,15 +29,15 @@ The CXX compiler identification is GNU, found in "/home/grt/ls/reality/depends/t
 Determining if the C compiler works passed with the following output:
 Change Dir: /home/grt/ls/reality/depends/third_party/cartographer/build_rk3326/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/ninja cmTC_0dcce && [1/2] Building C object CMakeFiles/cmTC_0dcce.dir/testCCompiler.c.o
-[2/2] Linking C executable cmTC_0dcce
+Run Build Command(s):/usr/bin/ninja cmTC_5891a && [1/2] Building C object CMakeFiles/cmTC_5891a.dir/testCCompiler.c.o
+[2/2] Linking C executable cmTC_5891a
 
 
 
 Detecting C compiler ABI info compiled with the following output:
 Change Dir: /home/grt/ls/reality/depends/third_party/cartographer/build_rk3326/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/ninja cmTC_f09fb && [1/2] Building C object CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o
+Run Build Command(s):/usr/bin/ninja cmTC_0660a && [1/2] Building C object CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o
 Using built-in specs.
 COLLECT_GCC=/home/grt/ls/reality/depends/rk3266/host/bin/aarch64-linux-gcc.br_real
 Target: aarch64-rk3326-linux-gnu
@@ -45,10 +45,12 @@ Configured with: ./configure --prefix=/home/grt/rockchip/rk3326/rk3326_linux/RK3
 Thread model: posix
 Supported LTO compression algorithms: zlib
 gcc version 10.3.0 (Buildroot 2018.02-rc3-dirty) 
-COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-o' 'CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
- /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/cc1 -quiet -v -iprefix /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/ -isysroot /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot /usr/share/cmake-3.16/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=cortex-a35 -mlittle-endian -mabi=lp64 -auxbase-strip CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o -O3 -Wno-multichar -version -o /tmp/cccBmojx.s
+COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-o' 'CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
+ /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/cc1 -quiet -v -iprefix /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/ -isysroot /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot /usr/share/cmake-3.16/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=cortex-a35 -mlittle-endian -mabi=lp64 -auxbase-strip CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o -O3 -Wno-multichar -version -o /tmp/ccX8K0dO.s
 GNU C17 (Buildroot 2018.02-rc3-dirty) version 10.3.0 (aarch64-rk3326-linux-gnu)
 	compiled by GNU C version 7.5.0, GMP version 6.1.2, MPFR version 3.1.6, MPC version 1.0.3, isl version none
+warning: GMP header version 6.1.2 differs from library version 6.2.1.
+warning: MPC header version 1.0.3 differs from library version 1.2.1.
 GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
 ignoring duplicate directory "/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/../../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/include"
 ignoring nonexistent directory "/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/local/include"
@@ -63,15 +65,17 @@ ignoring duplicate directory "/home/grt/ls/reality/depends/rk3266/host/bin/../li
 End of search list.
 GNU C17 (Buildroot 2018.02-rc3-dirty) version 10.3.0 (aarch64-rk3326-linux-gnu)
 	compiled by GNU C version 7.5.0, GMP version 6.1.2, MPFR version 3.1.6, MPC version 1.0.3, isl version none
+warning: GMP header version 6.1.2 differs from library version 6.2.1.
+warning: MPC header version 1.0.3 differs from library version 1.2.1.
 GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
 Compiler executable checksum: 3c3ab71b7991186c0dd8dddcfd75eca0
-COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-o' 'CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
- /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/as -v -EL -march=armv8-a+crc -mabi=lp64 -o CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o /tmp/cccBmojx.s
+COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-o' 'CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
+ /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/as -v -EL -march=armv8-a+crc -mabi=lp64 -o CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o /tmp/ccX8K0dO.s
 GNU assembler version 2.36.1 (aarch64-rk3326-linux-gnu) using BFD version (GNU Binutils) 2.36.1
 COMPILER_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/
 LIBRARY_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/
-COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-o' 'CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
-[2/2] Linking C executable cmTC_f09fb
+COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-o' 'CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
+[2/2] Linking C executable cmTC_0660a
 Using built-in specs.
 COLLECT_GCC=/home/grt/ls/reality/depends/rk3266/host/bin/aarch64-linux-gcc.br_real
 COLLECT_LTO_WRAPPER=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper
@@ -82,9 +86,9 @@ Supported LTO compression algorithms: zlib
 gcc version 10.3.0 (Buildroot 2018.02-rc3-dirty) 
 COMPILER_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/
 LIBRARY_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/
-COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_f09fb' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
- /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/collect2 -plugin /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/liblto_plugin.so -plugin-opt=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper -plugin-opt=-fresolution=/tmp/ccGG4zK0.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --sysroot=/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot --eh-frame-hdr -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux -o cmTC_f09fb /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crt1.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crti.o /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtbegin.o -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib -rpath-link /home/grt/ls/reality/depends/rk3266/common/arm64/lib CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtend.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crtn.o
-COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_f09fb' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
+COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_0660a' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
+ /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/collect2 -plugin /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/liblto_plugin.so -plugin-opt=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper -plugin-opt=-fresolution=/tmp/ccugu478.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --sysroot=/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot --eh-frame-hdr -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux -o cmTC_0660a /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crt1.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crti.o /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtbegin.o -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib -rpath-link /home/grt/ls/reality/depends/rk3266/common/arm64/lib CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtend.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crtn.o
+COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_0660a' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
 
 
 
@@ -107,7 +111,7 @@ Parsed C implicit link information from above output:
   link line regex: [^( *|.*[/\])(aarch64-linux-ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
   ignore line: [Change Dir: /home/grt/ls/reality/depends/third_party/cartographer/build_rk3326/CMakeFiles/CMakeTmp]
   ignore line: []
-  ignore line: [Run Build Command(s):/usr/bin/ninja cmTC_f09fb && [1/2] Building C object CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o]
+  ignore line: [Run Build Command(s):/usr/bin/ninja cmTC_0660a && [1/2] Building C object CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o]
   ignore line: [Using built-in specs.]
   ignore line: [COLLECT_GCC=/home/grt/ls/reality/depends/rk3266/host/bin/aarch64-linux-gcc.br_real]
   ignore line: [Target: aarch64-rk3326-linux-gnu]
@@ -115,10 +119,12 @@ Parsed C implicit link information from above output:
   ignore line: [Thread model: posix]
   ignore line: [Supported LTO compression algorithms: zlib]
   ignore line: [gcc version 10.3.0 (Buildroot 2018.02-rc3-dirty) ]
-  ignore line: [COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-o' 'CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
-  ignore line: [ /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/cc1 -quiet -v -iprefix /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/ -isysroot /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot /usr/share/cmake-3.16/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=cortex-a35 -mlittle-endian -mabi=lp64 -auxbase-strip CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o -O3 -Wno-multichar -version -o /tmp/cccBmojx.s]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-o' 'CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
+  ignore line: [ /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/cc1 -quiet -v -iprefix /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/ -isysroot /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot /usr/share/cmake-3.16/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=cortex-a35 -mlittle-endian -mabi=lp64 -auxbase-strip CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o -O3 -Wno-multichar -version -o /tmp/ccX8K0dO.s]
   ignore line: [GNU C17 (Buildroot 2018.02-rc3-dirty) version 10.3.0 (aarch64-rk3326-linux-gnu)]
   ignore line: [	compiled by GNU C version 7.5.0  GMP version 6.1.2  MPFR version 3.1.6  MPC version 1.0.3  isl version none]
+  ignore line: [warning: GMP header version 6.1.2 differs from library version 6.2.1.]
+  ignore line: [warning: MPC header version 1.0.3 differs from library version 1.2.1.]
   ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
   ignore line: [ignoring duplicate directory "/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/../../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/include"]
   ignore line: [ignoring nonexistent directory "/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/local/include"]
@@ -133,15 +139,17 @@ Parsed C implicit link information from above output:
   ignore line: [End of search list.]
   ignore line: [GNU C17 (Buildroot 2018.02-rc3-dirty) version 10.3.0 (aarch64-rk3326-linux-gnu)]
   ignore line: [	compiled by GNU C version 7.5.0  GMP version 6.1.2  MPFR version 3.1.6  MPC version 1.0.3  isl version none]
+  ignore line: [warning: GMP header version 6.1.2 differs from library version 6.2.1.]
+  ignore line: [warning: MPC header version 1.0.3 differs from library version 1.2.1.]
   ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
   ignore line: [Compiler executable checksum: 3c3ab71b7991186c0dd8dddcfd75eca0]
-  ignore line: [COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-o' 'CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
-  ignore line: [ /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/as -v -EL -march=armv8-a+crc -mabi=lp64 -o CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o /tmp/cccBmojx.s]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-o' 'CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
+  ignore line: [ /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/as -v -EL -march=armv8-a+crc -mabi=lp64 -o CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o /tmp/ccX8K0dO.s]
   ignore line: [GNU assembler version 2.36.1 (aarch64-rk3326-linux-gnu) using BFD version (GNU Binutils) 2.36.1]
   ignore line: [COMPILER_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/]
   ignore line: [LIBRARY_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/]
-  ignore line: [COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-o' 'CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
-  ignore line: [[2/2] Linking C executable cmTC_f09fb]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-o' 'CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
+  ignore line: [[2/2] Linking C executable cmTC_0660a]
   ignore line: [Using built-in specs.]
   ignore line: [COLLECT_GCC=/home/grt/ls/reality/depends/rk3266/host/bin/aarch64-linux-gcc.br_real]
   ignore line: [COLLECT_LTO_WRAPPER=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper]
@@ -152,13 +160,13 @@ Parsed C implicit link information from above output:
   ignore line: [gcc version 10.3.0 (Buildroot 2018.02-rc3-dirty) ]
   ignore line: [COMPILER_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/]
   ignore line: [LIBRARY_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/]
-  ignore line: [COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_f09fb' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
-  link line: [ /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/collect2 -plugin /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/liblto_plugin.so -plugin-opt=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper -plugin-opt=-fresolution=/tmp/ccGG4zK0.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --sysroot=/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot --eh-frame-hdr -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux -o cmTC_f09fb /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crt1.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crti.o /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtbegin.o -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib -rpath-link /home/grt/ls/reality/depends/rk3266/common/arm64/lib CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtend.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crtn.o]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_0660a' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
+  link line: [ /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/collect2 -plugin /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/liblto_plugin.so -plugin-opt=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper -plugin-opt=-fresolution=/tmp/ccugu478.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --sysroot=/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot --eh-frame-hdr -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux -o cmTC_0660a /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crt1.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crti.o /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtbegin.o -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib -rpath-link /home/grt/ls/reality/depends/rk3266/common/arm64/lib CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtend.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crtn.o]
     arg [/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/collect2] ==> ignore
     arg [-plugin] ==> ignore
     arg [/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/liblto_plugin.so] ==> ignore
     arg [-plugin-opt=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper] ==> ignore
-    arg [-plugin-opt=-fresolution=/tmp/ccGG4zK0.res] ==> ignore
+    arg [-plugin-opt=-fresolution=/tmp/ccugu478.res] ==> ignore
     arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
     arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
     arg [-plugin-opt=-pass-through=-lc] ==> ignore
@@ -173,7 +181,7 @@ Parsed C implicit link information from above output:
     arg [-EL] ==> ignore
     arg [-maarch64linux] ==> ignore
     arg [-o] ==> ignore
-    arg [cmTC_f09fb] ==> ignore
+    arg [cmTC_0660a] ==> ignore
     arg [/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crt1.o] ==> ignore
     arg [/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crti.o] ==> ignore
     arg [/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtbegin.o] ==> ignore
@@ -187,7 +195,7 @@ Parsed C implicit link information from above output:
     arg [-L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib] ==> dir [/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib]
     arg [-rpath-link] ==> ignore
     arg [/home/grt/ls/reality/depends/rk3266/common/arm64/lib] ==> ignore
-    arg [CMakeFiles/cmTC_f09fb.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [CMakeFiles/cmTC_0660a.dir/CMakeCCompilerABI.c.o] ==> ignore
     arg [-lgcc] ==> lib [gcc]
     arg [--push-state] ==> ignore
     arg [--as-needed] ==> ignore
@@ -217,15 +225,15 @@ Parsed C implicit link information from above output:
 Determining if the CXX compiler works passed with the following output:
 Change Dir: /home/grt/ls/reality/depends/third_party/cartographer/build_rk3326/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/ninja cmTC_ea665 && [1/2] Building CXX object CMakeFiles/cmTC_ea665.dir/testCXXCompiler.cxx.o
-[2/2] Linking CXX executable cmTC_ea665
+Run Build Command(s):/usr/bin/ninja cmTC_23158 && [1/2] Building CXX object CMakeFiles/cmTC_23158.dir/testCXXCompiler.cxx.o
+[2/2] Linking CXX executable cmTC_23158
 
 
 
 Detecting CXX compiler ABI info compiled with the following output:
 Change Dir: /home/grt/ls/reality/depends/third_party/cartographer/build_rk3326/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/ninja cmTC_e67f0 && [1/2] Building CXX object CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o
+Run Build Command(s):/usr/bin/ninja cmTC_6e1de && [1/2] Building CXX object CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o
 Using built-in specs.
 COLLECT_GCC=/home/grt/ls/reality/depends/rk3266/host/bin/aarch64-linux-g++.br_real
 Target: aarch64-rk3326-linux-gnu
@@ -233,10 +241,12 @@ Configured with: ./configure --prefix=/home/grt/rockchip/rk3326/rk3326_linux/RK3
 Thread model: posix
 Supported LTO compression algorithms: zlib
 gcc version 10.3.0 (Buildroot 2018.02-rc3-dirty) 
-COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-std=gnu++11' '-o' 'CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
- /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/cc1plus -quiet -v -iprefix /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/ -isysroot /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot -D_GNU_SOURCE /usr/share/cmake-3.16/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpbase CMakeCXXCompilerABI.cpp -mcpu=cortex-a35 -mlittle-endian -mabi=lp64 -auxbase-strip CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o -O3 -Wno-multichar -std=gnu++11 -version -o /tmp/ccWuEali.s
+COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-std=gnu++11' '-o' 'CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
+ /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/cc1plus -quiet -v -iprefix /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/ -isysroot /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot -D_GNU_SOURCE /usr/share/cmake-3.16/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpbase CMakeCXXCompilerABI.cpp -mcpu=cortex-a35 -mlittle-endian -mabi=lp64 -auxbase-strip CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o -O3 -Wno-multichar -std=gnu++11 -version -o /tmp/cckOBoTl.s
 GNU C++11 (Buildroot 2018.02-rc3-dirty) version 10.3.0 (aarch64-rk3326-linux-gnu)
 	compiled by GNU C version 7.5.0, GMP version 6.1.2, MPFR version 3.1.6, MPC version 1.0.3, isl version none
+warning: GMP header version 6.1.2 differs from library version 6.2.1.
+warning: MPC header version 1.0.3 differs from library version 1.2.1.
 GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
 ignoring duplicate directory "/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/../../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/include/c++/10.3.0"
 ignoring duplicate directory "/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/../../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/include/c++/10.3.0/aarch64-rk3326-linux-gnu"
@@ -257,15 +267,17 @@ ignoring duplicate directory "/home/grt/ls/reality/depends/rk3266/host/bin/../li
 End of search list.
 GNU C++11 (Buildroot 2018.02-rc3-dirty) version 10.3.0 (aarch64-rk3326-linux-gnu)
 	compiled by GNU C version 7.5.0, GMP version 6.1.2, MPFR version 3.1.6, MPC version 1.0.3, isl version none
+warning: GMP header version 6.1.2 differs from library version 6.2.1.
+warning: MPC header version 1.0.3 differs from library version 1.2.1.
 GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
 Compiler executable checksum: 9f6fd42ddb8afabd9fc439f0305c2695
-COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-std=gnu++11' '-o' 'CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
- /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/as -v -EL -march=armv8-a+crc -mabi=lp64 -o CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccWuEali.s
+COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-std=gnu++11' '-o' 'CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
+ /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/as -v -EL -march=armv8-a+crc -mabi=lp64 -o CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o /tmp/cckOBoTl.s
 GNU assembler version 2.36.1 (aarch64-rk3326-linux-gnu) using BFD version (GNU Binutils) 2.36.1
 COMPILER_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/
 LIBRARY_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/
-COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-std=gnu++11' '-o' 'CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
-[2/2] Linking CXX executable cmTC_e67f0
+COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-std=gnu++11' '-o' 'CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
+[2/2] Linking CXX executable cmTC_6e1de
 Using built-in specs.
 COLLECT_GCC=/home/grt/ls/reality/depends/rk3266/host/bin/aarch64-linux-g++.br_real
 COLLECT_LTO_WRAPPER=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper
@@ -276,9 +288,9 @@ Supported LTO compression algorithms: zlib
 gcc version 10.3.0 (Buildroot 2018.02-rc3-dirty) 
 COMPILER_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/
 LIBRARY_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/
-COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_e67f0' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
- /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/collect2 -plugin /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/liblto_plugin.so -plugin-opt=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper -plugin-opt=-fresolution=/tmp/cceDg7uB.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --sysroot=/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot --eh-frame-hdr -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux -o cmTC_e67f0 /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crt1.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crti.o /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtbegin.o -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib -rpath-link /home/grt/ls/reality/depends/rk3266/common/arm64/lib CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtend.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crtn.o
-COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_e67f0' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
+COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_6e1de' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
+ /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/collect2 -plugin /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/liblto_plugin.so -plugin-opt=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper -plugin-opt=-fresolution=/tmp/ccxqixXG.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --sysroot=/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot --eh-frame-hdr -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux -o cmTC_6e1de /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crt1.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crti.o /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtbegin.o -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib -rpath-link /home/grt/ls/reality/depends/rk3266/common/arm64/lib CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtend.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crtn.o
+COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_6e1de' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64'
 
 
 
@@ -307,7 +319,7 @@ Parsed CXX implicit link information from above output:
   link line regex: [^( *|.*[/\])(aarch64-linux-ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
   ignore line: [Change Dir: /home/grt/ls/reality/depends/third_party/cartographer/build_rk3326/CMakeFiles/CMakeTmp]
   ignore line: []
-  ignore line: [Run Build Command(s):/usr/bin/ninja cmTC_e67f0 && [1/2] Building CXX object CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [Run Build Command(s):/usr/bin/ninja cmTC_6e1de && [1/2] Building CXX object CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o]
   ignore line: [Using built-in specs.]
   ignore line: [COLLECT_GCC=/home/grt/ls/reality/depends/rk3266/host/bin/aarch64-linux-g++.br_real]
   ignore line: [Target: aarch64-rk3326-linux-gnu]
@@ -315,10 +327,12 @@ Parsed CXX implicit link information from above output:
   ignore line: [Thread model: posix]
   ignore line: [Supported LTO compression algorithms: zlib]
   ignore line: [gcc version 10.3.0 (Buildroot 2018.02-rc3-dirty) ]
-  ignore line: [COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-std=gnu++11' '-o' 'CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
-  ignore line: [ /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/cc1plus -quiet -v -iprefix /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/ -isysroot /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot -D_GNU_SOURCE /usr/share/cmake-3.16/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpbase CMakeCXXCompilerABI.cpp -mcpu=cortex-a35 -mlittle-endian -mabi=lp64 -auxbase-strip CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o -O3 -Wno-multichar -std=gnu++11 -version -o /tmp/ccWuEali.s]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-std=gnu++11' '-o' 'CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
+  ignore line: [ /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/cc1plus -quiet -v -iprefix /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/ -isysroot /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot -D_GNU_SOURCE /usr/share/cmake-3.16/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpbase CMakeCXXCompilerABI.cpp -mcpu=cortex-a35 -mlittle-endian -mabi=lp64 -auxbase-strip CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o -O3 -Wno-multichar -std=gnu++11 -version -o /tmp/cckOBoTl.s]
   ignore line: [GNU C++11 (Buildroot 2018.02-rc3-dirty) version 10.3.0 (aarch64-rk3326-linux-gnu)]
   ignore line: [	compiled by GNU C version 7.5.0  GMP version 6.1.2  MPFR version 3.1.6  MPC version 1.0.3  isl version none]
+  ignore line: [warning: GMP header version 6.1.2 differs from library version 6.2.1.]
+  ignore line: [warning: MPC header version 1.0.3 differs from library version 1.2.1.]
   ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
   ignore line: [ignoring duplicate directory "/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/../../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/include/c++/10.3.0"]
   ignore line: [ignoring duplicate directory "/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/../../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/include/c++/10.3.0/aarch64-rk3326-linux-gnu"]
@@ -339,15 +353,17 @@ Parsed CXX implicit link information from above output:
   ignore line: [End of search list.]
   ignore line: [GNU C++11 (Buildroot 2018.02-rc3-dirty) version 10.3.0 (aarch64-rk3326-linux-gnu)]
   ignore line: [	compiled by GNU C version 7.5.0  GMP version 6.1.2  MPFR version 3.1.6  MPC version 1.0.3  isl version none]
+  ignore line: [warning: GMP header version 6.1.2 differs from library version 6.2.1.]
+  ignore line: [warning: MPC header version 1.0.3 differs from library version 1.2.1.]
   ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
   ignore line: [Compiler executable checksum: 9f6fd42ddb8afabd9fc439f0305c2695]
-  ignore line: [COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-std=gnu++11' '-o' 'CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
-  ignore line: [ /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/as -v -EL -march=armv8-a+crc -mabi=lp64 -o CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccWuEali.s]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-std=gnu++11' '-o' 'CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
+  ignore line: [ /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/as -v -EL -march=armv8-a+crc -mabi=lp64 -o CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o /tmp/cckOBoTl.s]
   ignore line: [GNU assembler version 2.36.1 (aarch64-rk3326-linux-gnu) using BFD version (GNU Binutils) 2.36.1]
   ignore line: [COMPILER_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/]
   ignore line: [LIBRARY_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/]
-  ignore line: [COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-std=gnu++11' '-o' 'CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
-  ignore line: [[2/2] Linking CXX executable cmTC_e67f0]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-O3' '-s' '-Wno-multichar' '-std=gnu++11' '-o' 'CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
+  ignore line: [[2/2] Linking CXX executable cmTC_6e1de]
   ignore line: [Using built-in specs.]
   ignore line: [COLLECT_GCC=/home/grt/ls/reality/depends/rk3266/host/bin/aarch64-linux-g++.br_real]
   ignore line: [COLLECT_LTO_WRAPPER=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper]
@@ -358,13 +374,13 @@ Parsed CXX implicit link information from above output:
   ignore line: [gcc version 10.3.0 (Buildroot 2018.02-rc3-dirty) ]
   ignore line: [COMPILER_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/bin/]
   ignore line: [LIBRARY_PATH=/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/:/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/:/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/]
-  ignore line: [COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_e67f0' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
-  link line: [ /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/collect2 -plugin /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/liblto_plugin.so -plugin-opt=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper -plugin-opt=-fresolution=/tmp/cceDg7uB.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --sysroot=/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot --eh-frame-hdr -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux -o cmTC_e67f0 /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crt1.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crti.o /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtbegin.o -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib -rpath-link /home/grt/ls/reality/depends/rk3266/common/arm64/lib CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtend.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crtn.o]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_6e1de' '-shared-libgcc' '-mcpu=cortex-a35' '-mlittle-endian' '-mabi=lp64']
+  link line: [ /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/collect2 -plugin /home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/liblto_plugin.so -plugin-opt=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper -plugin-opt=-fresolution=/tmp/ccxqixXG.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --sysroot=/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot --eh-frame-hdr -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux -o cmTC_6e1de /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crt1.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crti.o /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtbegin.o -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64 -L/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/../../../../aarch64-rk3326-linux-gnu/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/lib -L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib -rpath-link /home/grt/ls/reality/depends/rk3266/common/arm64/lib CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtend.o /home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crtn.o]
     arg [/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/collect2] ==> ignore
     arg [-plugin] ==> ignore
     arg [/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/liblto_plugin.so] ==> ignore
     arg [-plugin-opt=/home/grt/ls/reality/depends/rk3266/host/bin/../libexec/gcc/aarch64-rk3326-linux-gnu/10.3.0/lto-wrapper] ==> ignore
-    arg [-plugin-opt=-fresolution=/tmp/cceDg7uB.res] ==> ignore
+    arg [-plugin-opt=-fresolution=/tmp/ccxqixXG.res] ==> ignore
     arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
     arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
     arg [-plugin-opt=-pass-through=-lc] ==> ignore
@@ -379,7 +395,7 @@ Parsed CXX implicit link information from above output:
     arg [-EL] ==> ignore
     arg [-maarch64linux] ==> ignore
     arg [-o] ==> ignore
-    arg [cmTC_e67f0] ==> ignore
+    arg [cmTC_6e1de] ==> ignore
     arg [/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crt1.o] ==> ignore
     arg [/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib/../lib64/crti.o] ==> ignore
     arg [/home/grt/ls/reality/depends/rk3266/host/bin/../lib/gcc/aarch64-rk3326-linux-gnu/10.3.0/crtbegin.o] ==> ignore
@@ -393,7 +409,7 @@ Parsed CXX implicit link information from above output:
     arg [-L/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib] ==> dir [/home/grt/ls/reality/depends/rk3266/common/../host/aarch64-rk3326-linux-gnu/sysroot/usr/lib]
     arg [-rpath-link] ==> ignore
     arg [/home/grt/ls/reality/depends/rk3266/common/arm64/lib] ==> ignore
-    arg [CMakeFiles/cmTC_e67f0.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [CMakeFiles/cmTC_6e1de.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
     arg [-lstdc++] ==> lib [stdc++]
     arg [-lm] ==> lib [m]
     arg [-lgcc_s] ==> lib [gcc_s]
@@ -419,16 +435,16 @@ Parsed CXX implicit link information from above output:
 Determining if the include file pthread.h exists passed with the following output:
 Change Dir: /home/grt/ls/reality/depends/third_party/cartographer/build_rk3326/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/ninja cmTC_3c449 && [1/2] Building C object CMakeFiles/cmTC_3c449.dir/CheckIncludeFile.c.o
-[2/2] Linking C executable cmTC_3c449
+Run Build Command(s):/usr/bin/ninja cmTC_746b5 && [1/2] Building C object CMakeFiles/cmTC_746b5.dir/CheckIncludeFile.c.o
+[2/2] Linking C executable cmTC_746b5
 
 
 
 Determining if the function pthread_create exists in the pthread passed with the following output:
 Change Dir: /home/grt/ls/reality/depends/third_party/cartographer/build_rk3326/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/ninja cmTC_849aa && [1/2] Building C object CMakeFiles/cmTC_849aa.dir/CheckFunctionExists.c.o
-[2/2] Linking C executable cmTC_849aa
+Run Build Command(s):/usr/bin/ninja cmTC_5656b && [1/2] Building C object CMakeFiles/cmTC_5656b.dir/CheckFunctionExists.c.o
+[2/2] Linking C executable cmTC_5656b
 
 
 
